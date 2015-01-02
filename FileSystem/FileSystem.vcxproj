@@ -76,11 +76,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Directory.cpp" />
+    <ClCompile Include="File.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Directory.h" />
     <ClInclude Include="DLList.h" />
     <ClInclude Include="DNode.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="TNode.h" />

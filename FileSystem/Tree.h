@@ -34,8 +34,7 @@ public:
 	Tree();
 	~Tree();
 
-	typedef typename DLList<TNode<T>*>::Iterator ListIterator;
-
+public:
 	Iterator begin() const;
 
 private:
@@ -43,6 +42,8 @@ private:
 	Tree& operator=(const Tree &);
 
 private:
+	typedef typename DLList<TNode<T>*>::Iterator ListIterator;
+
 	TNode<T>* root;
 	void deleteTree(TNode<T> *&);
 };
