@@ -10,7 +10,7 @@ public:
 	Directory(std::string &);
 
 public:
-	virtual std::string toString();
+	//virtual std::string toString();
 
 private:
 	DLList<File> files;

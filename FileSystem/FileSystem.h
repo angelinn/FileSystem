@@ -10,9 +10,6 @@ public:
 	void addFile();
 	void addDirectory();
 
-public:
-	virtual std::string toString();
-
 private:
 	Tree<TNode<File*>> files;
 };

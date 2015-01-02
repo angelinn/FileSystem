@@ -7,19 +7,22 @@ class File
 {
 public:
 	File(std::string &);
+	File(std::string &, std::string &);
 	File(const File &);
 	File& operator=(const File &);
 	~File();
 
 public:
+	static size_t getFileSize(std::ifstream &);
 	virtual std::string toString();
+	bool isEmpty() { return size != 0; }
 
 private:
-	typedef unsigned char byte;
 	void copyFrom(const File &);
 	void free();
 
 private:
+	typedef unsigned char byte;
 	byte* content;
 	std::string name;
 	size_t size;
