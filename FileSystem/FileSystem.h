@@ -7,8 +7,8 @@
 class FileSystem
 {
 public:
-	void addFile();
-	void addDirectory();
+	void addFile(const File *);
+	void addDirectory(const File *);
 
 private:
 	Tree<TNode<File*>> files;

@@ -10,7 +10,7 @@ public:
 	File(std::string &, std::string &);
 	File(const File &);
 	File& operator=(const File &);
-	~File();
+	virtual ~File();
 
 public:
 	static size_t getFileSize(std::ifstream &);
