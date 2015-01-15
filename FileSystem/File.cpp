@@ -1,7 +1,7 @@
 #include "File.h"
 #include <fstream>
 
-File::File(std::string& n) : name(n), content(NULL)
+File::File(std::string& n) : name(n), ByteContainer()
 {  }
 
 File::File(std::string& n, std::string& otherFilePath) : File(n)
@@ -13,37 +13,13 @@ File::File(std::string& n, std::string& otherFilePath) : File(n)
 	input.close();
 }
 
-File::File(const File& other) : content(NULL)
-{
-	copyFrom(other);
-}
+File::File(const File& other) : ByteContainer(other)
+{  }
 
 File& File::operator=(const File& other)
 {
-	if (this != &other)
-	{
-		free();
-		copyFrom(other);
-	}
-
+	ByteContainer::operator=(other);
 	return *this;
-}
-
-File::~File()
-{
-	free();
-}
-
-void File::free()
-{
-	delete[] content;
-}
-
-void File::copyFrom(const File& other)
-{
-	name = other.name;
-	size = other.size;
-	memcpy(content, other.content, other.size * sizeof(byte));
 }
 
 size_t File::getFileSize(std::ifstream& file)
