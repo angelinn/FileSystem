@@ -12,9 +12,11 @@ public:
 
 public:
 	static void setFragmentSize(size_t);
+	static const int FRAGMENT_SIZE = 0;
 
 private:
-	static const int FRAGMENT_SIZE = 0;
+	size_t startByte;
+	size_t endByte;
 };
 
 

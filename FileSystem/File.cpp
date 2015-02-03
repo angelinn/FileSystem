@@ -1,10 +1,10 @@
 #include "File.h"
 #include <fstream>
 
-File::File(std::string& n) : name(n), ByteContainer()
+File::File(std::string n) : name(n), ByteContainer()
 {  }
 
-File::File(std::string& n, std::string& otherFilePath) : File(n)
+File::File(std::string n, std::string otherFilePath) : File(n)
 {
 	std::ifstream input(otherFilePath, std::ios::in | std::ios::binary);
 	size_t inputSize = getFileSize(input);
@@ -37,4 +37,9 @@ size_t File::getFileSize(std::ifstream& file)
 std::string File::toString()
 {
 	return name;
+}
+
+bool operator==(const File* file, const std::string string)
+{
+	return file->name.compare(string) == 0;
 }

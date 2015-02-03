@@ -1,13 +1,13 @@
 #include "ByteContainer.h"
 #include <stdexcept>
 
-ByteContainer::ByteContainer(byte* bytes, size_t volume) : content(content), size(volume)
+ByteContainer::ByteContainer(byte* bytes, size_t volume) : content(bytes), size(volume)
 { 
-	if (bytes && volume)
+	if (content && size)
 	{
 		try
 		{
-			bytes = new byte[volume];
+			content = new byte[size];
 		}
 		catch (std::bad_alloc&)
 		{

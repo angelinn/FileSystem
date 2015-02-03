@@ -7,8 +7,8 @@
 class File : public ByteContainer
 {
 public:
-	File(std::string &);
-	File(std::string &, std::string &);
+	File(std::string);
+	File(std::string, std::string);
 	File(const File &);
 	File& operator=(const File &);
 
@@ -18,8 +18,15 @@ public:
 	bool isEmpty() { return size != 0; }
 
 private:
+	int endFragment;
+	int startFragment;
+
 	std::string name;
+
+	friend bool operator==(const File *, const std::string);
 };
+
+bool operator==(const File *, const std::string);
 
 
 #endif // FILE_H

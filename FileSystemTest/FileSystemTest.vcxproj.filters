@@ -48,15 +48,33 @@
     <ClInclude Include="..\FileSystem\TreeException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\FileSystem\ByteContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FileSystem\Tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="unittest1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\FileSystem\Directory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\FileSystem\File.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FileSystem\ByteContainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FileSystem\Tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FileSystem\Tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FileSystem\TNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

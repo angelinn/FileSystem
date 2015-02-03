@@ -2,24 +2,21 @@
 #define TNODE_H
 
 #include "DLList.h"
-
-template <typename T>
+#include "File.h"
 
 class TNode
 {
 public:
-	TNode(const T &);
+	TNode(File *, TNode *);
+	~TNode();
 
+	TNode* parent;
 	DLList<TNode*> children;
-	T data;
+	File* data;
 
 private:
 	TNode(const TNode &);
 	TNode& operator=(const TNode &);
 };
-
-template <typename T>
-TNode<T>::TNode(const T& item) : data(item)
-{  }
 
 #endif // TNODE_H

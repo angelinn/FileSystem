@@ -1,18 +1,16 @@
 #include <iostream>
 #include <crtdbg.h>
 #include "FileSystem.h"
+#include "Tools.h"
 
-#define MODIFYING_REAL_MAIN
 
 int main()
 {
 	try
 	{
-		Tree<int> tree;
-		File file(std::string("Yeah.txt"));
-		Directory dir(std::string("Dir"));
-
-		File* pFile = new File(file);
+		Tree tree;
+		tree.setRoot();
+		std::cout << tree.getNode("/")->data->toString() << std::endl;
 	}
 	catch (std::exception e)
 	{

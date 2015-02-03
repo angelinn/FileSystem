@@ -81,6 +81,9 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Fragment.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TNode.cpp" />
+    <ClCompile Include="Tools.cpp" />
+    <ClCompile Include="Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ByteContainer.h" />
@@ -93,6 +96,7 @@
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="TNode.h" />
+    <ClInclude Include="Tools.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeException.h" />
   </ItemGroup>

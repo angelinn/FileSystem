@@ -83,6 +83,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\FileSystem\ByteContainer.h" />
     <ClInclude Include="..\FileSystem\Directory.h" />
     <ClInclude Include="..\FileSystem\DLList.h" />
     <ClInclude Include="..\FileSystem\DNode.h" />
@@ -91,14 +92,19 @@
     <ClInclude Include="..\FileSystem\Node.h" />
     <ClInclude Include="..\FileSystem\Queue.h" />
     <ClInclude Include="..\FileSystem\TNode.h" />
+    <ClInclude Include="..\FileSystem\Tools.h" />
     <ClInclude Include="..\FileSystem\Tree.h" />
     <ClInclude Include="..\FileSystem\TreeException.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\FileSystem\ByteContainer.cpp" />
     <ClCompile Include="..\FileSystem\Directory.cpp" />
     <ClCompile Include="..\FileSystem\File.cpp" />
-    <ClCompile Include="unittest1.cpp" />
+    <ClCompile Include="..\FileSystem\TNode.cpp" />
+    <ClCompile Include="..\FileSystem\Tools.cpp" />
+    <ClCompile Include="..\FileSystem\Tree.cpp" />
+    <ClCompile Include="TestTree.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
