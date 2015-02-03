@@ -10,6 +10,10 @@ int main()
 	{
 		Tree tree;
 		tree.setRoot();
+		tree.insert("/", new File("boot"));
+		tree.insert("/boot", new File("settings.ini"));
+		tree.remove("/boot/settings.ini");
+
 		std::cout << tree.getNode("/")->data->toString() << std::endl;
 	}
 	catch (std::exception e)

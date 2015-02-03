@@ -47,16 +47,23 @@ void Tree::remove(const std::string& path)
 	TNode* node = NULL;
 	getNodeAt(path, root, node);
 
-	if (node)
+	if (!node)
+		throw std::exception("File not found!");
+
+	if (node == root)
+		throw std::runtime_error("You can't delete your root");
+
+	ListIterator iter = node->parent->children.begin();
+	for (; iter; ++iter) // Not cool at all
 	{
-		ListIterator iter = node->parent->children.begin();
-		for (; iter; ++iter) // Not cool at all
+		if ((*iter) == node)
 		{
-			if ((*iter) == node)
-				node->parent->children.popAt(iter);
+			ListIterator deleter = iter;
+			++iter;
+			node->parent->children.popAt(deleter);
+			--iter;
 		}
 	}
-
 }
 
 void Tree::getNodeAt(const std::string& path, TNode*& currentNode, TNode*& result)

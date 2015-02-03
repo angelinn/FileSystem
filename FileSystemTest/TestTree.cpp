@@ -15,6 +15,11 @@ namespace FileSystemTest
 		{
 			tree = new Tree();
 			tree->setRoot();
+
+			tree->insert("/", new File("boot"));
+			tree->insert("/boot", new File("settings.ini"));
+			tree->insert("/boot", new File("some_file"));
+			tree->insert("/boot", new File("other_file"));
 		}
 
 		TEST_METHOD_CLEANUP(TearDown)
@@ -29,25 +34,22 @@ namespace FileSystemTest
 
 		TEST_METHOD(InsertingElementInRoot)
 		{
-			tree->insert("/", new File("boot"));
 			Assert::IsTrue(operator==(tree->getNode("/boot")->data, "boot"));
 		}
 
 		TEST_METHOD(InsertElementNotInRoot)
 		{
-			tree->insert("/", new File("boot"));
-			tree->insert("/boot", new File("settings.ini"));
-
 			Assert::IsTrue(operator==(tree->getNode("/boot/settings.ini")->data, "settings.ini"));
+		}
+
+		TEST_METHOD(InsertNestedElement)
+		{
+			tree->insert("/boot/some_file", new File("nested"));
+			Assert::IsTrue(operator==(tree->getNode("/boot/some_file/nested")->data, "nested"));
 		}
 
 		TEST_METHOD(IsElementInChildren)
 		{
-			tree->insert("/", new File("boot"));
-			tree->insert("/boot", new File("settings.ini"));
-			tree->insert("/boot", new File("some_file"));
-			tree->insert("/boot", new File("other_file"));
-
 			for (DLList<TNode*>::Iterator iter = tree->getNode("/boot")->children.begin(); iter; ++iter)
 				if (operator==((*iter)->data, "other_file"))
 					return;
@@ -55,12 +57,49 @@ namespace FileSystemTest
 			Assert::IsTrue(false);
 		}
 
-		TEST_METHOD(IsParrentCorrect)
+		TEST_METHOD(IsParentCorrect)
 		{
-			tree->insert("/", new File("boot"));
-			tree->insert("/boot", new File("settings.ini"));
-
 			Assert::IsTrue(operator==(tree->getNode("/boot/settings.ini")->parent->data, "boot"));
+		}
+
+		TEST_METHOD(RemoveElementNotRoot)
+		{
+			tree->remove("/boot/settings.ini");
+
+			TNode* node = tree->getNode("/boot/settings.ini");
+			Assert::IsNull(node);
+		}
+
+		TEST_METHOD(RemoveRoot)
+		{
+			bool caught = false;
+
+			try
+			{
+				tree->remove("/");
+			}
+			catch (std::runtime_error)
+			{
+				caught = true;
+			}
+
+			Assert::IsTrue(caught);
+		}
+
+		TEST_METHOD(RemoveWrongElement)
+		{
+			bool caught = false;
+
+			try
+			{
+				tree->remove("/boot/fake");
+			}
+			catch (std::exception)
+			{
+				caught = true;
+			}
+
+			Assert::IsTrue(caught);
 		}
 	};
 }
