@@ -24,9 +24,6 @@
     <ClCompile Include="Directory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Fragment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ByteContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +40,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CommandParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,9 +77,6 @@
     <ClInclude Include="FileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Fragment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ByteContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CommandParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

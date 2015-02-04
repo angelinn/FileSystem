@@ -81,7 +81,7 @@
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileSystem.cpp" />
-    <ClCompile Include="Fragment.cpp" />
+    <ClCompile Include="Sector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TNode.cpp" />
     <ClCompile Include="Tools.cpp" />
@@ -96,7 +96,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="FileSystemException.h" />
-    <ClInclude Include="Fragment.h" />
+    <ClInclude Include="Sector.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="TNode.h" />

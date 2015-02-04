@@ -4,10 +4,16 @@
 #include "Directory.h"
 #include "Tree.h"
 #include "Tools.h"
+#include "Queue.h"
+#include <fstream>
 
 class FileSystem
 {
+	typedef unsigned char byte;
+
 public:
+	FileSystem();
+	~FileSystem();
 	static const char* FILE_NAME;
 
 public:
@@ -26,12 +32,19 @@ public:
 
 private:
 	stringPair splitPathAndName(const std::string &) const;
-		
+	void goToLastSector(int);
+	void write(const byte *, size_t);
+	bool writeCore(const byte *&, size_t, int);
+	int getStartFragmentID() const;
+
 private:
 	int treeAt;
+	int lastFragmentID;
+	std::fstream file;
 
 
 private:
+	Queue<int> deletedSectors;
 	Tree files;
 };
 
