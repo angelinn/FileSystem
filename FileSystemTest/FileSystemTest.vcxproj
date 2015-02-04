@@ -89,6 +89,7 @@
     <ClInclude Include="..\FileSystem\DNode.h" />
     <ClInclude Include="..\FileSystem\File.h" />
     <ClInclude Include="..\FileSystem\FileSystem.h" />
+    <ClInclude Include="..\FileSystem\FileSystemException.h" />
     <ClInclude Include="..\FileSystem\Node.h" />
     <ClInclude Include="..\FileSystem\Queue.h" />
     <ClInclude Include="..\FileSystem\TNode.h" />

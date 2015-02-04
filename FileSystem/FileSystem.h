@@ -3,20 +3,33 @@
 
 #include "Directory.h"
 #include "Tree.h"
+#include "Tools.h"
 
 class FileSystem
 {
 public:
-	void addEmptyFile();
-	void addFile(const std::string &);
-	void addFile(const File *);
-	void addDirectory(const File *);
+	static const char* FILE_NAME;
+
+public:
+	void addEmptyFile(const std::string &);
+	void importFile(const std::string &, const std::string &);
+	void addDirectory(const std::string &);
 	void exportFile(const std::string &, const std::string &);
 	void deleteFile(const std::string &);
+
+public:
+
 	void moveFile(const std::string &, const std::string &);
 	void copyFile(const std::string &, const std::string &);
 	std::string getFileInfo(const std::string &);
 	void appendText(const std::string &, const std::string &);
+
+private:
+	stringPair splitPathAndName(const std::string &) const;
+		
+private:
+	int treeAt;
+
 
 private:
 	Tree files;

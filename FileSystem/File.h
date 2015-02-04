@@ -4,22 +4,25 @@
 #include <string>
 #include "ByteContainer.h"
 
-class File : public ByteContainer
+class File //: public ByteContainer
 {
 public:
 	File(std::string);
-	File(std::string, std::string);
 	File(const File &);
 	File& operator=(const File &);
 
 public:
+	void buurn();
+
+public:
+	void read(const std::string &);
+	void write(const std::string &);
 	static size_t getFileSize(std::ifstream &);
 	virtual std::string toString();
 	bool isEmpty() { return size != 0; }
 
 private:
-	int endFragment;
-	int startFragment;
+	int startFragmentID;
 
 	std::string name;
 

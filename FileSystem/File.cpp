@@ -1,16 +1,36 @@
-#include "File.h"
 #include <fstream>
+#include "FileSystem.h"
 
 File::File(std::string n) : name(n), ByteContainer()
 {  }
 
-File::File(std::string n, std::string otherFilePath) : File(n)
+void File::read(const std::string& path)
 {
-	std::ifstream input(otherFilePath, std::ios::in | std::ios::binary);
+	std::ifstream input(path, std::ios::in | std::ios::binary);
+	if (!input)
+		throw 1;
+
 	size_t inputSize = getFileSize(input);
 
-	input.read(reinterpret_cast<char*>(content), inputSize * sizeof(char));
+	input.read(reinterpret_cast<char*>(content), inputSize * sizeof(byte));
 	input.close();
+}
+
+void File::write(const std::string& path)
+{
+	std::ofstream output(path, std::ios::out | std::ios::binary);
+	if (!output)
+		throw - 1;
+
+	output.write(reinterpret_cast<const char*>(content), size * sizeof(byte));
+	output.close();
+}
+
+void File::buurn()
+{
+	std::ofstream out(FileSystem::FILE_NAME, std::ios::out | std::ios::binary);
+
+
 }
 
 File::File(const File& other) : ByteContainer(other)

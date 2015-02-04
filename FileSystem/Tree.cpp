@@ -1,13 +1,29 @@
 #include "Tree.h"
 #include "Tools.h"
+#include "FileSystemException.h"
 
 Tree::Tree() : root(NULL)
 {  }
 
+Tree::Tree(const Tree& other) : root(NULL)
+{
+	copyTree(other.root, root);
+}
+
+Tree& Tree::operator=(const Tree& other)
+{
+	if (this != &other)
+	{
+		deleteTree(root);
+		copyTree(other.root, root);
+	}
+
+	return *this;
+}
+
 Tree::~Tree()
 {
-	if (root)
-		deleteTree(root);
+	deleteTree(root);
 }
 
 void Tree::setRoot()
@@ -16,13 +32,33 @@ void Tree::setRoot()
 		root = new TNode(new File(std::string("/")), NULL);
 }
 
+// Not Tested yet
+void Tree::copyTree(const TNode* source, TNode*& destination)
+{
+	if (!source)
+		return;
+
+	destination->data = new File(*source->data);
+	TNode* child = NULL;
+
+	for (ListIterator iter = source->children.begin(); iter; ++iter)
+	{
+		child = new TNode(NULL, destination);
+		copyTree(*iter, child);
+		destination->children.pushBack(child);
+	}
+}
+
 void Tree::deleteTree(TNode*& node)
 {
-	for (ListIterator iter = node->children.begin(); iter; ++iter)
-		deleteTree(*iter);
+	if (node)
+	{
+		for (ListIterator iter = node->children.begin(); iter; ++iter)
+			deleteTree(*iter);
 
-	delete node;
-	node = NULL;
+		delete node;
+		node = NULL;
+	}
 }
 
 TNode* Tree::getNode(const std::string& path)
@@ -48,10 +84,10 @@ void Tree::remove(const std::string& path)
 	getNodeAt(path, root, node);
 
 	if (!node)
-		throw std::exception("File not found!");
+		throw InvalidFilePath("File not found!");
 
 	if (node == root)
-		throw std::runtime_error("You can't delete your root");
+		throw InvalidFileOperation("You can't delete the root directory!");
 
 	ListIterator iter = node->parent->children.begin();
 	for (; iter; ++iter) // Not cool at all
@@ -60,7 +96,7 @@ void Tree::remove(const std::string& path)
 		{
 			ListIterator deleter = iter;
 			++iter;
-			node->parent->children.popAt(deleter);
+			delete node->parent->children.popAt(deleter);
 			--iter;
 		}
 	}

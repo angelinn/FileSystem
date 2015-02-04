@@ -1,5 +1,6 @@
 #include "ByteContainer.h"
 #include <stdexcept>
+#include <ostream>
 
 ByteContainer::ByteContainer(byte* bytes, size_t volume) : content(bytes), size(volume)
 { 
@@ -47,4 +48,9 @@ void ByteContainer::copyFrom(const ByteContainer& other)
 void ByteContainer::free()
 {
 	delete[] content;
+}
+
+void ByteContainer::write(std::ostream& stream)
+{
+	stream.write(reinterpret_cast<const char*>(content), size * sizeof(byte));
 }

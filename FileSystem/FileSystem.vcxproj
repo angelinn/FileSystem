@@ -77,8 +77,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ByteContainer.cpp" />
+    <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Fragment.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TNode.cpp" />
@@ -87,11 +89,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ByteContainer.h" />
+    <ClInclude Include="CommandParser.h" />
     <ClInclude Include="Directory.h" />
     <ClInclude Include="DLList.h" />
     <ClInclude Include="DNode.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="FileSystemException.h" />
     <ClInclude Include="Fragment.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />

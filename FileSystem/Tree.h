@@ -10,6 +10,8 @@ class Tree
 
 public:
 	Tree();
+	Tree(const Tree &);
+	Tree& operator=(const Tree &);
 	~Tree();
 
 public:
@@ -19,18 +21,12 @@ public:
 	TNode* getNode(const std::string &);
 
 private:
-	Tree(const Tree &);
-	Tree& operator=(const Tree &);
-
-private:
 	TNode* root;
-
-private:
 	void getNodeAt(const std::string &, TNode *&, TNode *&);
 
 private:
 	void deleteTree(TNode *&);
-	void copyTree(TNode *, TNode *&);
+	void copyTree(const TNode *, TNode *&);
 };
 
 

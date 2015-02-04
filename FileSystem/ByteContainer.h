@@ -5,6 +5,7 @@
 
 class ByteContainer
 {
+protected:
 	typedef unsigned char byte;
 
 public:
@@ -12,6 +13,9 @@ public:
 	ByteContainer(const ByteContainer &);
 	ByteContainer& operator=(const ByteContainer &);
 	virtual ~ByteContainer() = 0;
+
+public:
+	void write(std::ostream &);
 
 protected:
 	byte* content;

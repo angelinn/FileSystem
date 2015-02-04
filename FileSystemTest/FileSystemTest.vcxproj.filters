@@ -54,6 +54,9 @@
     <ClInclude Include="..\FileSystem\Tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\FileSystem\FileSystemException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\FileSystem\Directory.cpp">

@@ -1,6 +1,7 @@
 #include "CppUnitTest.h"
 
 #include "../FileSystem/FileSystem.h"
+#include "../FileSystem/FileSystemException.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -78,7 +79,7 @@ namespace FileSystemTest
 			{
 				tree->remove("/");
 			}
-			catch (std::runtime_error)
+			catch (InvalidFileOperation &)
 			{
 				caught = true;
 			}
@@ -94,7 +95,7 @@ namespace FileSystemTest
 			{
 				tree->remove("/boot/fake");
 			}
-			catch (std::exception)
+			catch (InvalidFilePath &)
 			{
 				caught = true;
 			}
