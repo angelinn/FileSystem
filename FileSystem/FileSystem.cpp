@@ -1,21 +1,31 @@
 #include "FileSystem.h"
 #include "Sector.h"
+#include "FileSystemException.h"
 
 typedef unsigned char byte;
-const char* FILE_PATH = "myFileSystem.bin";
+const char* FileSystem::FILE_NAME = "myFileSystem.bin";
 
 FileSystem::FileSystem() :
 	  //reader(FILE_PATH, std::ios::in | std::ios::binary), 
 	  //writer(FILE_PATH, std::ios::out | std::ios::binary | std::ios::app),
-	  file(FILE_PATH, std::ios::in | std::ios::out | std::ios::binary),
-	  treeAt(-1)
-{  }
+	  file(FILE_NAME, std::ios::in | std::ios::out | std::ios::binary | std::ios::app),
+	  treeAt(-1),
+	  lastFragmentID(0)
+{
+	files.setRoot();
+}
 
 FileSystem::~FileSystem()
 {
 	//reader.close();
 	//writer.close();
 	file.close();
+}
+
+void FileSystem::create(std::string str)
+{
+	std::ofstream s(str);
+	s.close();
 }
 
 void FileSystem::write(const byte* content, size_t size)
@@ -33,7 +43,11 @@ void FileSystem::write(const byte* content, size_t size)
 			return;
 	}
 
-	file.seekp(std::ios::end);
+	std::streamoff a = 0;
+	//file.flush();
+	a = file.tellp();
+	file.seekp(0, std::ios::end);
+	a = file.tellp();
 	while (!writeCore(content, size, lastFragmentID++))
 	{  }
 }
@@ -67,7 +81,7 @@ bool FileSystem::writeCore(const byte*& content, size_t size, int nextFragmentID
 
 int FileSystem::getStartFragmentID() const
 {
-	return deletedSectors.isEmpty() ? lastFragmentID + 1 : deletedSectors.peek();
+	return deletedSectors.isEmpty() ? lastFragmentID : deletedSectors.peek();
 }
 
 void FileSystem::addEmptyFile(const std::string& file)
@@ -121,9 +135,13 @@ stringPair FileSystem::splitPathAndName(const std::string& path) const
 	size_t backslash = path.rfind(BACKSLASH_CHAR);
 
 	if (backslash == std::string::npos)
-		throw - 1;
+		throw InvalidFilePath("Backslash not found!");
 
 	std::string pathOnly(path, 0, backslash);
+
+	if (!backslash)
+		pathOnly = "/";
+
 	std::string name(path, backslash + 1);
 
 	return stringPair(pathOnly, name);

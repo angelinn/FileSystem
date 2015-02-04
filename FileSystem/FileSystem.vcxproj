@@ -76,7 +76,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ByteContainer.cpp" />
     <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
@@ -88,7 +87,7 @@
     <ClCompile Include="Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ByteContainer.h" />
+    <ClInclude Include="CLI.h" />
     <ClInclude Include="CommandParser.h" />
     <ClInclude Include="Directory.h" />
     <ClInclude Include="DLList.h" />

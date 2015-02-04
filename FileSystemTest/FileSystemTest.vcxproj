@@ -83,7 +83,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\FileSystem\ByteContainer.h" />
     <ClInclude Include="..\FileSystem\Directory.h" />
     <ClInclude Include="..\FileSystem\DLList.h" />
     <ClInclude Include="..\FileSystem\DNode.h" />
@@ -99,7 +98,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\FileSystem\ByteContainer.cpp" />
     <ClCompile Include="..\FileSystem\Directory.cpp" />
     <ClCompile Include="..\FileSystem\File.cpp" />
     <ClCompile Include="..\FileSystem\TNode.cpp" />

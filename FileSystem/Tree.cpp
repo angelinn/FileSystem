@@ -115,3 +115,41 @@ void Tree::getNodeAt(const std::string& path, TNode*& currentNode, TNode*& resul
 			getNodeAt(pathLeft, *iter, result);
 	}
 }
+
+void Tree::serialize(std::fstream& stream) const
+{
+	serializeRecursive(stream, root);
+}
+
+void Tree::serializeRecursive(std::fstream& stream, TNode* node) const
+{
+	int size = node->children.getSize();
+	stream.write(reinterpret_cast<const char*>(&size), sizeof(int));
+
+	node->data->serialize(stream);
+
+	for (ListIterator iter = node->children.begin(); iter; ++iter)
+		serializeRecursive(stream, *iter);
+}
+
+void Tree::deserialize(std::fstream& stream, int at)
+{
+	stream.seekg(at, std::ios::beg);
+	deserializeRecursive(stream, root);
+}
+
+void Tree::deserializeRecursive(std::fstream& stream, TNode*& node)
+{
+	node = new TNode();
+	
+	int size = 0;
+	stream.read(reinterpret_cast<char*>(&size), sizeof(int));
+
+	for (int i = 0; i < size; ++i)
+		node->children.pushBack(new TNode());
+
+	node->data->deserialize(stream);
+
+	for (ListIterator iter = node->children.begin(); iter; ++iter)
+		deserializeRecursive(stream, *iter);
+}

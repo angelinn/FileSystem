@@ -16,6 +16,8 @@ public:
 	~FileSystem();
 	static const char* FILE_NAME;
 
+	static void create(std::string);
+
 public:
 	void addEmptyFile(const std::string &);
 	void importFile(const std::string &, const std::string &);

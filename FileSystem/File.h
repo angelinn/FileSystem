@@ -7,14 +7,19 @@
 class File
 {
 public:
-	File(std::string, int = SectorInformation::noNext);
+	File();
+	File(std::string, int = SectorInformation::noNext, bool = false);
 
 public:
 	virtual std::string toString();
+	void serialize(std::fstream &) const;
+	void deserialize(std::fstream &);
 
 private:
 	int startFragmentID;
 	std::string name;
+	bool isDirectory;
+
 	friend bool operator==(const File *, const std::string);
 };
 

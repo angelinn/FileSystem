@@ -102,5 +102,30 @@ namespace FileSystemTest
 
 			Assert::IsTrue(caught);
 		}
+
+		TEST_METHOD(SerializeAndDeserialize)
+		{
+			std::ofstream a("ser_test.bin");
+			a.close();
+
+			std::fstream stream("ser_test.bin", std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+			if (!stream)
+				throw - 1;
+
+			tree->serialize(stream);
+			stream.flush();
+
+			Tree other;
+			other.deserialize(stream, 0);
+
+			Assert::IsTrue(operator==(other.getNode("/")->data, "/"));
+			Assert::IsTrue(operator==(other.getNode("/boot")->data, "boot"));
+			Assert::IsTrue(operator==(other.getNode("/boot/settings.ini")->data, "settings.ini"));
+			Assert::IsTrue(operator==(other.getNode("/boot/some_file")->data, "some_file"));
+			Assert::IsTrue(operator==(other.getNode("/boot/other_file")->data, "other_file"));
+
+			stream.close();
+		}
+
 	};
 }

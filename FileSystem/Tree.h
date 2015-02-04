@@ -20,9 +20,15 @@ public:
 	void remove(const std::string &);
 	TNode* getNode(const std::string &);
 
+public:
+	void serialize(std::fstream &) const;
+	void deserialize(std::fstream &, int);
+
 private:
 	TNode* root;
 	void getNodeAt(const std::string &, TNode *&, TNode *&);
+	void serializeRecursive(std::fstream &, TNode *) const;
+	void deserializeRecursive(std::fstream &, TNode *&);
 
 private:
 	void deleteTree(TNode *&);

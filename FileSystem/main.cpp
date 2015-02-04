@@ -8,13 +8,11 @@ int main()
 {
 	try
 	{
-		Tree tree;
-		tree.setRoot();
-		tree.insert("/", new File("boot"));
-		tree.insert("/boot", new File("settings.ini"));
-		tree.remove("/boot/settings.ini");
-
-		std::cout << tree.getNode("/")->data->toString() << std::endl;
+		/*FileSystem::create(FileSystem::FILE_NAME);
+		FileSystem fs;
+		fs.addEmptyFile("/empty");
+		fs.addEmptyFile("/empty/dsa");
+		fs.addEmptyFile("/empty/other");*/
 	}
 	catch (std::exception e)
 	{
