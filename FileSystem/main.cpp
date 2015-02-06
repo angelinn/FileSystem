@@ -1,18 +1,20 @@
 #include <iostream>
 #include <crtdbg.h>
-#include "FileSystem.h"
-#include "Tools.h"
-
+#include "CLI.h"
 
 int main()
 {
 	try
 	{
-		/*FileSystem::create(FileSystem::FILE_NAME);
+		//CLI cli;
+		//FileSystem::create(FileSystem::FILE_NAME);
 		FileSystem fs;
-		fs.addEmptyFile("/empty");
-		fs.addEmptyFile("/empty/dsa");
-		fs.addEmptyFile("/empty/other");*/
+		fs.create(FileSystem::FILE_NAME, false);
+		//fs.addEmptyFile("/empty");
+		//fs.addEmptyFile("/empty/dsa/ok");
+		//fs.addEmptyFile("/empty/other");
+		
+		fs.printTree();
 	}
 	catch (std::exception e)
 	{

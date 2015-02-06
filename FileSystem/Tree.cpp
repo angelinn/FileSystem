@@ -1,6 +1,7 @@
 #include "Tree.h"
 #include "Tools.h"
 #include "FileSystemException.h"
+#include <iostream>
 
 Tree::Tree() : root(NULL)
 {  }
@@ -152,4 +153,16 @@ void Tree::deserializeRecursive(std::fstream& stream, TNode*& node)
 
 	for (ListIterator iter = node->children.begin(); iter; ++iter)
 		deserializeRecursive(stream, *iter);
+}
+
+void Tree::DFS() const
+{
+	DFSR(root);
+}
+
+void Tree::DFSR(TNode* node) const
+{
+	std::cout << node->data->toString() << std::endl;
+	for (ListIterator iter = node->children.begin(); iter; ++iter)
+		DFSR(*iter);
 }

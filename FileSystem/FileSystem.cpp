@@ -5,27 +5,52 @@
 typedef unsigned char byte;
 const char* FileSystem::FILE_NAME = "myFileSystem.bin";
 
-FileSystem::FileSystem() :
-	  //reader(FILE_PATH, std::ios::in | std::ios::binary), 
-	  //writer(FILE_PATH, std::ios::out | std::ios::binary | std::ios::app),
-	  file(FILE_NAME, std::ios::in | std::ios::out | std::ios::binary | std::ios::app),
-	  treeAt(-1),
-	  lastFragmentID(0)
-{
-	files.setRoot();
-}
+FileSystem::FileSystem() : treeAt(-1), lastFragmentID(0)
+{  }
 
 FileSystem::~FileSystem()
 {
-	//reader.close();
-	//writer.close();
+	writeCoreData();
 	file.close();
 }
 
-void FileSystem::create(std::string str)
+void FileSystem::writeCoreData()
 {
-	std::ofstream s(str);
-	s.close();
+	file.seekp(0, std::ios::end);
+	treeAt = file.tellp();
+
+	files.serialize(file);
+	file.write(reinterpret_cast<const char*>(&treeAt), sizeof(int));
+	file.write(reinterpret_cast<const char*>(&lastFragmentID), sizeof(int));
+}
+
+void FileSystem::readCoreData()
+{
+	file.seekg(-2 * static_cast<int>(sizeof(int)), std::ios::end);
+
+	file.read(reinterpret_cast<char*>(&treeAt), sizeof(int));
+	file.read(reinterpret_cast<char*>(&lastFragmentID), sizeof(int));
+	files.deserialize(file, treeAt);
+}
+
+void FileSystem::create(const std::string& path, bool newFS)
+{
+	if (newFS)
+	{
+		file.open(path, std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+		if (!file)
+			throw FileOpeningFailed("Can't open file in create() method.");
+
+		files.setRoot();
+	}
+	else
+	{
+		file.open(path, std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+		if (!file)
+			throw FileOpeningFailed("Can't open file in create() method.");
+
+		readCoreData();
+	}
 }
 
 void FileSystem::write(const byte* content, size_t size)
@@ -44,10 +69,7 @@ void FileSystem::write(const byte* content, size_t size)
 	}
 
 	std::streamoff a = 0;
-	//file.flush();
-	a = file.tellp();
 	file.seekp(0, std::ios::end);
-	a = file.tellp();
 	while (!writeCore(content, size, lastFragmentID++))
 	{  }
 }
@@ -75,6 +97,15 @@ bool FileSystem::writeCore(const byte*& content, size_t size, int nextFragmentID
 
 		if (content)
 			file.write(reinterpret_cast<const char*>(content), info.size * sizeof(byte));
+
+		// FIX IT
+		byte* nullBytes = new byte[info.freeSpace()];
+		memset(nullBytes, 0x00, info.freeSpace() * sizeof(byte));
+
+		file.write(reinterpret_cast<const char*>(nullBytes), info.freeSpace() * sizeof(byte));
+		delete[] nullBytes;
+		// ENDFIX
+
 		return true;
 	}
 }
@@ -92,9 +123,10 @@ void FileSystem::addEmptyFile(const std::string& file)
 	write(NULL, 0);
 
 	files.insert(pair.first, new File(pair.second, id));
+	this->file.flush();
 }
 
-//rebuild
+//rebuild ?? really?
 void FileSystem::addDirectory(const std::string& dir)
 {
 	stringPair pair = splitPathAndName(dir);
@@ -160,4 +192,9 @@ void FileSystem::goToLastSector(int firstSectorID)
 	} while (info.nextFragment != SectorInformation::noNext);
 
 	file.seekg(info.size, std::ios::cur);
+}
+
+void FileSystem::printTree() const
+{
+	files.DFS();
 }

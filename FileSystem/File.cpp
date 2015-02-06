@@ -7,17 +7,17 @@ File::File() : startFragmentID(0), isDirectory(false)
 File::File(std::string n, int fragmentID, bool isDir) : name(n), startFragmentID(fragmentID), isDirectory(isDir)
 {  }
 
-//size_t File::getFileSize(std::ifstream& file)
-//{
-//	file.seekg(std::ios::end);
-//	std::streamoff size = file.tellg();
-//
-//	if (size == -1)
-//		throw "bla";
-//	else
-//		return static_cast<size_t>(size);
-//
-//}
+size_t File::getFileSize(std::fstream& file)
+{
+	file.seekg(0, std::ios::end);
+	size_t size = file.tellg();
+
+	if (size == -1)
+		throw "bla";
+	else
+		return size;
+
+}
 
 std::string File::toString()
 {

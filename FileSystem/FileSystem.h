@@ -12,11 +12,13 @@ class FileSystem
 	typedef unsigned char byte;
 
 public:
+	void printTree() const;
+
 	FileSystem();
 	~FileSystem();
 	static const char* FILE_NAME;
 
-	static void create(std::string);
+	void create(const std::string &, bool = false);
 
 public:
 	void addEmptyFile(const std::string &);
@@ -24,15 +26,16 @@ public:
 	void addDirectory(const std::string &);
 	void exportFile(const std::string &, const std::string &);
 	void deleteFile(const std::string &);
-
-public:
-
 	void moveFile(const std::string &, const std::string &);
 	void copyFile(const std::string &, const std::string &);
+
+public:
 	std::string getFileInfo(const std::string &);
 	void appendText(const std::string &, const std::string &);
 
 private:
+	void writeCoreData();
+	void readCoreData();
 	stringPair splitPathAndName(const std::string &) const;
 	void goToLastSector(int);
 	void write(const byte *, size_t);
@@ -46,6 +49,7 @@ private:
 
 
 private:
+	// TO DO : Serialize Queue
 	Queue<int> deletedSectors;
 	Tree files;
 };

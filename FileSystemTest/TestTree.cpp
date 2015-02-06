@@ -128,4 +128,33 @@ namespace FileSystemTest
 		}
 
 	};
+
+	TEST_CLASS(TestFileSystem)
+	{
+	public:
+		FileSystem* fs;
+
+		TEST_METHOD_INITIALIZE(SetUp)
+		{
+			fs = new FileSystem();
+		}
+
+		TEST_METHOD_CLEANUP(TearDown)
+		{
+			delete fs;
+		}
+
+		TEST_METHOD(TestEmptyFileWriting)
+		{
+			fs->create(FileSystem::FILE_NAME);
+			fs->addEmptyFile("/empty");
+			fs->addEmptyFile("/empty/dsa");
+			fs->addEmptyFile("/empty/other");
+
+			std::fstream testFile(FileSystem::FILE_NAME, std::ios::in | std::ios::binary);
+			Assert::AreSame<int>(4123, File::getFileSize(testFile));
+		}
+
+
+	};
 }

@@ -24,5 +24,12 @@ public:
 	{  }
 };
 
+class FileOpeningFailed : public FileSystemException
+{
+public:
+	FileOpeningFailed(const char* message) : FileSystemException(message)
+	{  }
+};
+
 
 #endif // FS_EXCEPTION

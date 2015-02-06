@@ -14,6 +14,7 @@ public:
 	virtual std::string toString();
 	void serialize(std::fstream &) const;
 	void deserialize(std::fstream &);
+	static size_t getFileSize(std::fstream &);
 
 private:
 	int startFragmentID;

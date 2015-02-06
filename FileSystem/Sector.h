@@ -13,6 +13,9 @@ struct SectorInformation
 	void serialize(std::fstream &);
 	bool isEmpty() const { return size == 0; }
 	size_t freeSpace() const { return SECTOR_SIZE - size; }
+	static size_t informationSize() { return sizeof(size_t) + sizeof(int); }
+
+
 
 	int nextFragment;
 	size_t size;

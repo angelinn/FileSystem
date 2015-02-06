@@ -21,6 +21,8 @@ public:
 	TNode* getNode(const std::string &);
 
 public:
+	void DFS() const;
+	void DFSR(TNode *) const;
 	void serialize(std::fstream &) const;
 	void deserialize(std::fstream &, int);
 

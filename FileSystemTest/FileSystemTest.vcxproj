@@ -91,6 +91,7 @@
     <ClInclude Include="..\FileSystem\FileSystemException.h" />
     <ClInclude Include="..\FileSystem\Node.h" />
     <ClInclude Include="..\FileSystem\Queue.h" />
+    <ClInclude Include="..\FileSystem\Sector.h" />
     <ClInclude Include="..\FileSystem\TNode.h" />
     <ClInclude Include="..\FileSystem\Tools.h" />
     <ClInclude Include="..\FileSystem\Tree.h" />
@@ -100,9 +101,12 @@
   <ItemGroup>
     <ClCompile Include="..\FileSystem\Directory.cpp" />
     <ClCompile Include="..\FileSystem\File.cpp" />
+    <ClCompile Include="..\FileSystem\FileSystem.cpp" />
+    <ClCompile Include="..\FileSystem\Sector.cpp" />
     <ClCompile Include="..\FileSystem\TNode.cpp" />
     <ClCompile Include="..\FileSystem\Tools.cpp" />
     <ClCompile Include="..\FileSystem\Tree.cpp" />
+    <ClCompile Include="TestFileSystem.cpp" />
     <ClCompile Include="TestTree.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
