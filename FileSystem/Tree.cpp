@@ -2,6 +2,7 @@
 #include "Tools.h"
 #include "FileSystemException.h"
 #include <iostream>
+#include "Directory.h"
 
 Tree::Tree() : root(NULL)
 {  }
@@ -30,7 +31,7 @@ Tree::~Tree()
 void Tree::setRoot()
 {
 	if (!root)
-		root = new TNode(new File(std::string("/")), NULL);
+		root = new TNode(new Directory("/"), NULL);
 }
 
 // Not Tested yet
@@ -76,7 +77,10 @@ void Tree::insert(const std::string& path, File* file)
 	getNodeAt(path, root, node);
 
 	if (node)
-		node->children.pushBack(new TNode(file, node));
+		if (node->data->isDirectory())
+			node->children.pushBack(new TNode(file, node));
+		else
+			throw InvalidFileOperation("Tried to put File* in a file!");
 }
 
 void Tree::remove(const std::string& path)
@@ -117,12 +121,12 @@ void Tree::getNodeAt(const std::string& path, TNode*& currentNode, TNode*& resul
 	}
 }
 
-void Tree::serialize(std::fstream& stream) const
+void Tree::serialize(std::ostream& stream) const
 {
 	serializeRecursive(stream, root);
 }
 
-void Tree::serializeRecursive(std::fstream& stream, TNode* node) const
+void Tree::serializeRecursive(std::ostream& stream, TNode* node) const
 {
 	int size = node->children.getSize();
 	stream.write(reinterpret_cast<const char*>(&size), sizeof(int));
@@ -133,13 +137,13 @@ void Tree::serializeRecursive(std::fstream& stream, TNode* node) const
 		serializeRecursive(stream, *iter);
 }
 
-void Tree::deserialize(std::fstream& stream, int at)
+void Tree::deserialize(std::istream& stream, int at)
 {
 	stream.seekg(at, std::ios::beg);
 	deserializeRecursive(stream, root);
 }
 
-void Tree::deserializeRecursive(std::fstream& stream, TNode*& node)
+void Tree::deserializeRecursive(std::istream& stream, TNode*& node)
 {
 	node = new TNode();
 	

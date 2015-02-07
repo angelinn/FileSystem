@@ -10,11 +10,14 @@ int main()
 		//FileSystem::create(FileSystem::FILE_NAME);
 		FileSystem fs;
 		fs.create(FileSystem::FILE_NAME, false);
+
+
 		//fs.addEmptyFile("/empty");
 		//fs.addEmptyFile("/empty/dsa/ok");
 		//fs.addEmptyFile("/empty/other");
-		
-		fs.printTree();
+
+
+		//fs.printTree();
 	}
 	catch (std::exception e)
 	{

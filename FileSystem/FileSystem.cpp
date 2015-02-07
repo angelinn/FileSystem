@@ -5,7 +5,7 @@
 typedef unsigned char byte;
 const char* FileSystem::FILE_NAME = "myFileSystem.bin";
 
-FileSystem::FileSystem() : treeAt(-1), lastFragmentID(0)
+FileSystem::FileSystem() : treeAt(-1), lastFragmentID(0), totalSize(0)
 {  }
 
 FileSystem::~FileSystem()
@@ -20,16 +20,22 @@ void FileSystem::writeCoreData()
 	treeAt = file.tellp();
 
 	files.serialize(file);
-	file.write(reinterpret_cast<const char*>(&treeAt), sizeof(int));
+	file.write(reinterpret_cast<const char*>(&treeAt), sizeof(size_t));
 	file.write(reinterpret_cast<const char*>(&lastFragmentID), sizeof(int));
+	file.write(reinterpret_cast<const char*>(&totalSize), sizeof(size_t));
 }
 
 void FileSystem::readCoreData()
 {
-	file.seekg(-2 * static_cast<int>(sizeof(int)), std::ios::end);
+	// ?
+	int variables = 3;
 
-	file.read(reinterpret_cast<char*>(&treeAt), sizeof(int));
+	file.seekg(- variables * static_cast<int>(sizeof(int)), std::ios::end);
+
+	file.read(reinterpret_cast<char*>(&treeAt), sizeof(size_t));
 	file.read(reinterpret_cast<char*>(&lastFragmentID), sizeof(int));
+	file.read(reinterpret_cast<char*>(&totalSize), sizeof(size_t));
+
 	files.deserialize(file, treeAt);
 }
 
@@ -78,17 +84,20 @@ bool FileSystem::writeCore(const byte*& content, size_t size, int nextFragmentID
 {
 	SectorInformation info;
 
-	if (size > SectorInformation::SECTOR_SIZE)
+	if (size > SectorInformation::AVAILABLE_SIZE())
 	{
-		info.size = SectorInformation::SECTOR_SIZE;
+		info.size = SectorInformation::AVAILABLE_SIZE();
 		info.nextFragment = nextFragmentID;
 		info.serialize(file);
 
 		file.write(reinterpret_cast<const char*>(content), info.size * sizeof(byte));
 		size -= info.size;
 		content += info.size;
+		totalSize += SectorInformation::SECTOR_SIZE;
+
 		return false;
 	}
+
 	else
 	{
 		info.size = size;
@@ -106,6 +115,7 @@ bool FileSystem::writeCore(const byte*& content, size_t size, int nextFragmentID
 		delete[] nullBytes;
 		// ENDFIX
 
+		totalSize += info.size + SectorInformation::informationSize();
 		return true;
 	}
 }
@@ -126,38 +136,66 @@ void FileSystem::addEmptyFile(const std::string& file)
 	this->file.flush();
 }
 
-//rebuild ?? really?
 void FileSystem::addDirectory(const std::string& dir)
 {
 	stringPair pair = splitPathAndName(dir);
-
-
 	files.insert(pair.first, new Directory(pair.second));
 }
 
-// rebuild
+// Needs Testing
 void FileSystem::importFile(const std::string& path, const std::string& dest)
 {
 	stringPair pair = splitPathAndName(path);
 
-	File* toImport = new File(pair.second);
-	//toImport->read(path);
+	File* toImport = new File(pair.second, getStartFragmentID());
+
+	std::ifstream input(path, std::ios::in | std::ios::binary);
+	if (!input)
+		throw InvalidFileOperation("Can't open file for import!");
+
+	size_t readSize = 64 * KILO_BYTE;
+	size_t fileSize = File::getFileSize(input);
+	input.seekg(0, std::ios::beg);
+
+	byte* part = new byte[readSize];
+
+	while (fileSize)
+	{
+		if (readSize > fileSize)
+			readSize = fileSize;
+
+		input.read(reinterpret_cast<char*>(part), readSize * sizeof(byte));
+		write(part, readSize);
+		fileSize -= readSize;
+	}
+
+
 	files.insert(dest, toImport);
 }
 
 // rebuild
 void FileSystem::exportFile(const std::string& path, const std::string& dest)
 {
-	TNode* file = files.getNode(path);
+	TNode* fileNode = files.getNode(path);
 
-	if (file)
+	if (fileNode)
 	{
+		std::ofstream output(dest, std::ios::out | std::ios::binary);
+		if (!output)
+			throw InvalidFileOperation("Couldn't open file for writing!");
+
+		file.seekp(fileNode->data->getFragmentID(), std::ios::beg);
+
+
 	}//file->data->write(dest);
 }
 
-// rebuild
+// rebuild - ? needs testing
 void FileSystem::deleteFile(const std::string& path)
 {
+	TNode* toDelete = files.getNode(path);
+	deletedSectors.enqueue(toDelete->data->getFragmentID());
+
 	files.remove(path);
 }
 

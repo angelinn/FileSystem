@@ -247,6 +247,8 @@ void DLList<T>::pushBack(const T& element)
 	++count;
 }
 
+
+// rewrite with iterator
 template <typename T>
 void DLList<T>::pushAt(const T& element, int position)
 {
@@ -343,4 +345,4 @@ T DLList<T>::popAt(const typename DLList<T>::Iterator& iter)
 	return data;
 }
 
-#endif // DOUBLE_LINKED_DLList
+#endif // DOUBLE_LINKED_LIST

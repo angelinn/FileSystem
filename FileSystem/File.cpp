@@ -1,13 +1,13 @@
 #include <fstream>
 #include "FileSystem.h"
 
-File::File() : startFragmentID(0), isDirectory(false)
+File::File() : startFragmentID(0), isDir(false)
 {  }
 
-File::File(std::string n, int fragmentID, bool isDir) : name(n), startFragmentID(fragmentID), isDirectory(isDir)
+File::File(std::string n, int fragmentID) : name(n), startFragmentID(fragmentID), isDir(false)
 {  }
 
-size_t File::getFileSize(std::fstream& file)
+size_t File::getFileSize(std::istream& file)
 {
 	file.seekg(0, std::ios::end);
 	size_t size = file.tellg();
@@ -24,16 +24,17 @@ std::string File::toString()
 	return name;
 }
 
-void File::serialize(std::fstream& output) const
+void File::serialize(std::ostream& output) const
 {
 	size_t size = name.size();
 
 	output.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
 	output.write(name.c_str(), size * sizeof(char));
-	output.write(reinterpret_cast<const char*>(&isDirectory), sizeof(bool));
+	output.write(reinterpret_cast<const char*>(&startFragmentID), sizeof(int));
+	output.write(reinterpret_cast<const char*>(&isDir), sizeof(bool));
 }
 
-void File::deserialize(std::fstream& input)
+void File::deserialize(std::istream& input)
 {
 	size_t size = 0;
 	input.read(reinterpret_cast<char*>(&size), sizeof(size_t));
@@ -45,10 +46,11 @@ void File::deserialize(std::fstream& input)
 	name = buffer;
 	delete[] buffer;
 
-	input.read(reinterpret_cast<char*>(&isDirectory), sizeof(bool));
+	input.read(reinterpret_cast<char*>(&startFragmentID), sizeof(int));
+	input.read(reinterpret_cast<char*>(&isDir), sizeof(bool));
 }
 
-bool operator==(const File* file, const std::string string)
+bool operator==(const File* file, const std::string& string)
 {
 	return file->name.compare(string) == 0;
 }

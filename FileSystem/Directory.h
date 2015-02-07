@@ -7,13 +7,10 @@
 class Directory : public File
 {
 public:
-	Directory(std::string &);
+	Directory(const std::string &);
 
 public:
 	//virtual std::string toString();
-
-private:
-	DLList<File> files;
 };
 
 #endif // DIRECTORY_H

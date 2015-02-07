@@ -52,6 +52,7 @@ private:
 	// TO DO : Serialize Queue
 	Queue<int> deletedSectors;
 	Tree files;
+	size_t totalSize;
 };
 
 

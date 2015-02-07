@@ -5,7 +5,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace FileSystemTest
+namespace DirectorySystemTest
 {		
 	TEST_CLASS(TestTree)
 	{
@@ -17,10 +17,10 @@ namespace FileSystemTest
 			tree = new Tree();
 			tree->setRoot();
 
-			tree->insert("/", new File("boot"));
+			tree->insert("/", new Directory("boot"));
 			tree->insert("/boot", new File("settings.ini"));
-			tree->insert("/boot", new File("some_file"));
-			tree->insert("/boot", new File("other_file"));
+			tree->insert("/boot", new Directory("some_Directory"));
+			tree->insert("/boot", new Directory("other_Directory"));
 		}
 
 		TEST_METHOD_CLEANUP(TearDown)
@@ -45,14 +45,14 @@ namespace FileSystemTest
 
 		TEST_METHOD(InsertNestedElement)
 		{
-			tree->insert("/boot/some_file", new File("nested"));
-			Assert::IsTrue(operator==(tree->getNode("/boot/some_file/nested")->data, "nested"));
+			tree->insert("/boot/some_Directory", new Directory("nested"));
+			Assert::IsTrue(operator==(tree->getNode("/boot/some_Directory/nested")->data, "nested"));
 		}
 
 		TEST_METHOD(IsElementInChildren)
 		{
 			for (DLList<TNode*>::Iterator iter = tree->getNode("/boot")->children.begin(); iter; ++iter)
-				if (operator==((*iter)->data, "other_file"))
+				if (operator==((*iter)->data, "other_Directory"))
 					return;
 
 			Assert::IsTrue(false);
@@ -105,10 +105,7 @@ namespace FileSystemTest
 
 		TEST_METHOD(SerializeAndDeserialize)
 		{
-			std::ofstream a("ser_test.bin");
-			a.close();
-
-			std::fstream stream("ser_test.bin", std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
+			std::fstream stream("ser_test.bin", std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 			if (!stream)
 				throw - 1;
 
@@ -121,40 +118,12 @@ namespace FileSystemTest
 			Assert::IsTrue(operator==(other.getNode("/")->data, "/"));
 			Assert::IsTrue(operator==(other.getNode("/boot")->data, "boot"));
 			Assert::IsTrue(operator==(other.getNode("/boot/settings.ini")->data, "settings.ini"));
-			Assert::IsTrue(operator==(other.getNode("/boot/some_file")->data, "some_file"));
-			Assert::IsTrue(operator==(other.getNode("/boot/other_file")->data, "other_file"));
+			Assert::IsTrue(operator==(other.getNode("/boot/some_Directory")->data, "some_Directory"));
+			Assert::IsTrue(operator==(other.getNode("/boot/other_Directory")->data, "other_Directory"));
 
 			stream.close();
 		}
 
 	};
 
-	TEST_CLASS(TestFileSystem)
-	{
-	public:
-		FileSystem* fs;
-
-		TEST_METHOD_INITIALIZE(SetUp)
-		{
-			fs = new FileSystem();
-		}
-
-		TEST_METHOD_CLEANUP(TearDown)
-		{
-			delete fs;
-		}
-
-		TEST_METHOD(TestEmptyFileWriting)
-		{
-			fs->create(FileSystem::FILE_NAME);
-			fs->addEmptyFile("/empty");
-			fs->addEmptyFile("/empty/dsa");
-			fs->addEmptyFile("/empty/other");
-
-			std::fstream testFile(FileSystem::FILE_NAME, std::ios::in | std::ios::binary);
-			Assert::AreSame<int>(4123, File::getFileSize(testFile));
-		}
-
-
-	};
 }

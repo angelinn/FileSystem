@@ -1,4 +1,6 @@
 #include "Directory.h"
 
-Directory::Directory(std::string& n) : File(n)
-{  }
+Directory::Directory(const std::string& n) : File(n)
+{
+	isDir = true;
+}

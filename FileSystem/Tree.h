@@ -23,14 +23,14 @@ public:
 public:
 	void DFS() const;
 	void DFSR(TNode *) const;
-	void serialize(std::fstream &) const;
-	void deserialize(std::fstream &, int);
+	void serialize(std::ostream &) const;
+	void deserialize(std::istream &, int);
 
 private:
 	TNode* root;
 	void getNodeAt(const std::string &, TNode *&, TNode *&);
-	void serializeRecursive(std::fstream &, TNode *) const;
-	void deserializeRecursive(std::fstream &, TNode *&);
+	void serializeRecursive(std::ostream &, TNode *) const;
+	void deserializeRecursive(std::istream &, TNode *&);
 
 private:
 	void deleteTree(TNode *&);
