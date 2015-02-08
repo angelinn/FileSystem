@@ -34,6 +34,14 @@ void Tree::setRoot()
 		root = new TNode(new Directory("/"), NULL);
 }
 
+void Tree::moveTree(TNode* source, TNode* dest)
+{
+	if (!source)
+		return;
+
+	source->children.pushBack(dest);
+}
+
 // Not Tested yet
 void Tree::copyTree(const TNode* source, TNode*& destination)
 {
@@ -83,7 +91,7 @@ void Tree::insert(const std::string& path, File* file)
 			throw InvalidFileOperation("Tried to put File* in a file!");
 }
 
-void Tree::remove(const std::string& path)
+TNode* Tree::remove(const std::string& path)
 {
 	TNode* node = NULL;
 	getNodeAt(path, root, node);
@@ -101,8 +109,10 @@ void Tree::remove(const std::string& path)
 		{
 			ListIterator deleter = iter;
 			++iter;
-			delete node->parent->children.popAt(deleter);
+			TNode* toBeRemoved = node->parent->children.popAt(deleter);
 			--iter;
+
+			return toBeRemoved;
 		}
 	}
 }

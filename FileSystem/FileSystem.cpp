@@ -161,22 +161,24 @@ void FileSystem::addDirectory(const std::string& dir)
 	files.insert(pair.first, new Directory(pair.second));
 }
 
-// Needs Testing
+// Needs Refactoring and append option to be used
 void FileSystem::importFile(const std::string& path, const std::string& dest)
 {
+	std::ifstream input(path, std::ios::in | std::ios::binary);
+	if (!input)
+		throw InvalidFileOperation("Can't open file for import!");
+
 	stringPair pair = splitPathAndName(dest);
 
 	File* toImport = new File(pair.second, getNextFragmentID());
 	moveToNextFragmentID();
 
-	std::ifstream input(path, std::ios::in | std::ios::binary);
-	if (!input)
-		throw InvalidFileOperation("Can't open file for import!");
-
 	size_t fileSize = File::getFileSize(input);
 	input.seekg(0, std::ios::beg);
 
-	byte* part = new byte[BUFFER_SIZE];
+	byte* part = NULL;
+	allocate<byte>(part, BUFFER_SIZE);
+
 	SectorInformation info;
 
 	size_t readSize = BUFFER_SIZE;
@@ -201,33 +203,21 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 			info.serialize(file);
 			moveToNextFragmentID();
 		}
-
 	}
-
 
 	delete[] part;
 	files.insert(pair.first, toImport);
 	input.close();
 }
-// Needs testing
+
 void FileSystem::moveFile(const std::string& path, const std::string& dest)
 {
-	TNode* toMove = files.getNode(path);
-	for (DLList<TNode*>::Iterator iter = toMove->parent->children.begin(); iter; ++iter)
-	{
-		// Needs better looking comparison
-		if (!(*iter)->data->getName().compare(toMove->data->getName()))
-		{
-			DLList<TNode*>::Iterator deleter = iter;
-			++iter;
-			toMove->parent->children.popAt(deleter);
-			--iter;
-		}
-	}
+	TNode* toMove = files.remove(path);
 
 	stringPair pair = splitPathAndName(dest);
 	toMove->data->setName(pair.second);
-	files.insert(pair.first, toMove->data);
+
+	files.moveTree(files.getNode(pair.first), toMove);
 }
 
 // rebuild
@@ -243,7 +233,9 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 
 		file.seekg(fileNode->data->getFragmentID() * SectorInformation::SECTOR_SIZE, std::ios::beg);
 
-		byte* placeholder = new byte[BUFFER_SIZE];
+		byte* placeholder = NULL;
+		allocate<byte>(placeholder, BUFFER_SIZE);
+
 		SectorInformation info;
 		int filled = 0;
 
@@ -265,10 +257,10 @@ int FileSystem::read(byte* content, SectorInformation& info)
 	do
 	{
 		if (filled >= BUFFER_SIZE)
-			if (filled > BUFFER_SIZE)
-				throw "nono";
-			else
+			if (filled == BUFFER_SIZE)
 				break;
+			else
+				throw InvalidFileOperation("filled > BUFFER_SIZE instead of equal!");
 
 		info.deserialize(file);
 		if ((filled + info.size) > BUFFER_SIZE)
@@ -293,9 +285,10 @@ void FileSystem::deleteFile(const std::string& path)
 	TNode* toDelete = files.getNode(path);
 	deletedSectors.enqueue(toDelete->data->getFragmentID());
 
-	files.remove(path);
+	delete files.remove(path);
 }
 
+//void FileSystem::copyFile()
 
 stringPair FileSystem::splitPathAndName(const std::string& path) const
 {

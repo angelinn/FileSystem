@@ -21,6 +21,7 @@ namespace FileSystemTest
 		TEST_METHOD_CLEANUP(TearDown)
 		{
 			delete fs;
+			//Assert::IsFalse(_CrtDumpMemoryLeaks());
 		}
 
 		TEST_METHOD(TestEmptyFileWriting)
@@ -67,6 +68,33 @@ namespace FileSystemTest
 			fs->moveFile("/empty/dsa", "/empty/other/new_dsa");
 
 			Assert::IsTrue(!fs->getFile("/empty/other/new_dsa")->data->getName().compare("new_dsa"));
+		}
+
+		TEST_METHOD(MoveDirectory)
+		{
+			fs->addDirectory("/empty");
+			fs->addDirectory("/empty/other");
+			fs->addDirectory("/test");
+			fs->addDirectory("/test/dest");
+
+			fs->addEmptyFile("/empty/dsa");
+			fs->addEmptyFile("/empty/other/other_file");
+			fs->moveFile("/empty", "/test/dest/empty_moved");
+
+			fs->printTree();
+
+			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved")->data->getName().compare("empty_moved"));
+			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved/other")->data->getName().compare("other"));
+			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved/dsa")->data->getName().compare("dsa"));
+			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved/other/other_file")->data->getName().compare("other_file"));
+		}
+
+		TEST_METHOD(DeleteFile)
+		{
+			fs->addDirectory("/root");
+			fs->addEmptyFile("/root/hello.rar");
+			fs->deleteFile("/root/hello.rar");
+			Assert::IsNull(fs->getFile("/root/hello.rar"));
 		}
 	};
 }

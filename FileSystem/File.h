@@ -21,6 +21,7 @@ public:
 
 public:
 	virtual std::string toString();
+	virtual File* clone() { return new File(*this); }
 
 public:
 	void serialize(std::ostream &) const;

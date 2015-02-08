@@ -17,7 +17,7 @@ public:
 public:
 	void setRoot();
 	void insert(const std::string &, File *);
-	void remove(const std::string &);
+	TNode* remove(const std::string &);
 	TNode* getNode(const std::string &);
 
 public:
@@ -25,6 +25,7 @@ public:
 	void DFSR(TNode *) const;
 	void serialize(std::ostream &) const;
 	void deserialize(std::istream &, int);
+	void moveTree(TNode *, TNode *);
 
 private:
 	TNode* root;

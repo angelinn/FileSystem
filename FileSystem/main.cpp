@@ -9,11 +9,15 @@ int main()
 		//CLI cli;
 		//FileSystem::create(FileSystem::FILE_NAME);
 		FileSystem fs;
-		fs.create(FileSystem::FILE_NAME, false);
+		fs.create(FileSystem::FILE_NAME, true);
 		//fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/rar");
-		fs.exportFile("/rar", "C:\\users\\angelin\\desktop\\copy.rar");
+		//fs.exportFile("/rar", "C:\\users\\angelin\\desktop\\copy.rar");
 
 
+		fs.addDirectory("/empty");
+		fs.addEmptyFile("/empty/file");
+		fs.addDirectory("/other");
+		fs.moveFile("/empty", "/other/emptyy");
 		//fs.addEmptyFile("/empty");
 		//fs.addEmptyFile("/empty/dsa/ok");
 		//fs.addEmptyFile("/empty/other");

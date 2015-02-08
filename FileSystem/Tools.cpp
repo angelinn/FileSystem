@@ -23,3 +23,17 @@ std::string getSecondPart(const std::string& path)
 
 	return std::string(path, nextBackslash + 1);
 }
+
+template <typename T>
+void allocate(T*& arr, size_t size)
+{
+	try
+	{
+		arr = new T[size];
+	}
+	catch (std::bad_alloc &)
+	{
+		delete[] arr;
+		throw;
+	}
+}

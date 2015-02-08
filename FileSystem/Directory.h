@@ -8,9 +8,11 @@ class Directory : public File
 {
 public:
 	Directory(const std::string &);
+	Directory(const File *);
 
 public:
 	//virtual std::string toString();
+	virtual Directory* clone() { return new Directory(*this); }
 };
 
 #endif // DIRECTORY_H
