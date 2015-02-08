@@ -10,6 +10,8 @@ int main()
 		//FileSystem::create(FileSystem::FILE_NAME);
 		FileSystem fs;
 		fs.create(FileSystem::FILE_NAME, false);
+		//fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/rar");
+		fs.exportFile("/rar", "C:\\users\\angelin\\desktop\\copy.rar");
 
 
 		//fs.addEmptyFile("/empty");
@@ -17,7 +19,7 @@ int main()
 		//fs.addEmptyFile("/empty/other");
 
 
-		//fs.printTree();
+		fs.printTree();
 	}
 	catch (std::exception e)
 	{

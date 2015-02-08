@@ -52,5 +52,10 @@ namespace FileSystemTest
 
 			Assert::AreEqual(expectedSize, File::getFileSize(testFile));
 		}
+
+		TEST_METHOD(ImportFile)
+		{
+
+		}
 	};
 }

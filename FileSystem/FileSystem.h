@@ -34,13 +34,16 @@ public:
 	void appendText(const std::string &, const std::string &);
 
 private:
+	int read(byte *, SectorInformation &);
 	void writeCoreData();
 	void readCoreData();
 	stringPair splitPathAndName(const std::string &) const;
 	void goToLastSector(int);
-	void write(const byte *, size_t);
-	bool writeCore(const byte *&, size_t, int);
-	int getStartFragmentID() const;
+	SectorInformation write(const byte *, size_t);
+	bool writeCore(const byte *&, size_t &, SectorInformation &);
+	int getNextFragmentID() const;
+	void moveToNextFragmentID();
+	size_t append(byte *&, size_t, SectorInformation &);
 
 private:
 	int treeAt;

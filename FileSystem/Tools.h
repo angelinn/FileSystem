@@ -4,14 +4,22 @@
 #include <string>
 #include <utility>
 
+// --------------------------------------------------------------------------------------------------------------
+
 typedef std::pair<std::string, std::string> stringPair;
+
+// --------------------------------------------------------------------------------------------------------------
 
 stringPair splitPath(const std::string &);
 std::string getSecondPart(const std::string &);
+
+// --------------------------------------------------------------------------------------------------------------
+
 const char BACKSLASH_CHAR = '/';
 const int BYTE_SIZE = 4;
 const int KILO_BYTE = 1024;
 const int MEGA_BYTE = 1024 * KILO_BYTE;
+const int BUFFER_SIZE = 64 * KILO_BYTE;
 
 
 #endif // TOOLS_H
