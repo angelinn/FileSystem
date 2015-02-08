@@ -16,6 +16,8 @@ public:
 public:
 	bool isDirectory() const { return isDir; }
 	int getFragmentID() const { return startFragmentID; }
+	std::string getName() const { return name; }
+	void setName(const std::string nn) { name = nn; }
 
 public:
 	virtual std::string toString();

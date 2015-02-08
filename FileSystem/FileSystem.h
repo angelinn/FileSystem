@@ -33,6 +33,8 @@ public:
 	std::string getFileInfo(const std::string &);
 	void appendText(const std::string &, const std::string &);
 
+	TNode* getFile(const std::string& str) { return files.getNode(str); }
+
 private:
 	int read(byte *, SectorInformation &);
 	void writeCoreData();
@@ -44,6 +46,7 @@ private:
 	int getNextFragmentID() const;
 	void moveToNextFragmentID();
 	size_t append(byte *&, size_t, SectorInformation &);
+	
 
 private:
 	int treeAt;

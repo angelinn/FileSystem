@@ -53,9 +53,20 @@ namespace FileSystemTest
 			Assert::AreEqual(expectedSize, File::getFileSize(testFile));
 		}
 
-		TEST_METHOD(ImportFile)
+		TEST_METHOD(ImportExportFile)
 		{
+			// TO DO
+			Assert::IsTrue(false);
+		}
 
+		TEST_METHOD(MoveEmptyFile)
+		{
+			fs->addDirectory("/empty");
+			fs->addDirectory("/empty/other");
+			fs->addEmptyFile("/empty/dsa");
+			fs->moveFile("/empty/dsa", "/empty/other/new_dsa");
+
+			Assert::IsTrue(!fs->getFile("/empty/other/new_dsa")->data->getName().compare("new_dsa"));
 		}
 	};
 }

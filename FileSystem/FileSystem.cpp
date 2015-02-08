@@ -209,6 +209,26 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 	files.insert(pair.first, toImport);
 	input.close();
 }
+// Needs testing
+void FileSystem::moveFile(const std::string& path, const std::string& dest)
+{
+	TNode* toMove = files.getNode(path);
+	for (DLList<TNode*>::Iterator iter = toMove->parent->children.begin(); iter; ++iter)
+	{
+		// Needs better looking comparison
+		if (!(*iter)->data->getName().compare(toMove->data->getName()))
+		{
+			DLList<TNode*>::Iterator deleter = iter;
+			++iter;
+			toMove->parent->children.popAt(deleter);
+			--iter;
+		}
+	}
+
+	stringPair pair = splitPathAndName(dest);
+	toMove->data->setName(pair.second);
+	files.insert(pair.first, toMove->data);
+}
 
 // rebuild
 void FileSystem::exportFile(const std::string& path, const std::string& dest)
