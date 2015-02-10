@@ -82,10 +82,10 @@ size_t FileSystem::append(byte*& content, size_t size, SectorInformation& info)
 	info.size += info.freeSpace();
 
 	info.nextFragment = getNextFragmentID();
+	moveToNextFragmentID();
 
 	file.seekp(- static_cast<int>(info.size), std::ios::cur);
 	info.serialize(file);
-	moveToNextFragmentID();
 
 	return bytesWritten;
 }
@@ -159,55 +159,6 @@ void FileSystem::addDirectory(const std::string& dir)
 {
 	stringPair pair = splitPathAndName(dir);
 	files.insert(pair.first, new Directory(pair.second));
-}
-
-// Needs Refactoring and append option to be used
-void FileSystem::importFile(const std::string& path, const std::string& dest)
-{
-	std::ifstream input(path, std::ios::in | std::ios::binary);
-	if (!input)
-		throw InvalidFileOperation("Can't open file for import!");
-
-	stringPair pair = splitPathAndName(dest);
-
-	File* toImport = new File(pair.second, getNextFragmentID());
-	moveToNextFragmentID();
-
-	size_t fileSize = File::getFileSize(input);
-	input.seekg(0, std::ios::beg);
-
-	byte* part = NULL;
-	allocate<byte>(part, BUFFER_SIZE);
-
-	SectorInformation info;
-
-	size_t readSize = BUFFER_SIZE;
-	while (fileSize)
-	{
-		if (readSize > fileSize)
-			readSize = fileSize;
-
-		input.read(reinterpret_cast<char*>(part), readSize * sizeof(byte));
-		info = write(part, readSize);
-		fileSize -= readSize;
-
-		if (fileSize)
-		{
-			//if (readSize > fileSize)
-			//	readSize = fileSize;
-
-			//;
-			//fileSize -= append(part, readSize, info);
-			file.seekp(-(int)SectorInformation::SECTOR_SIZE, std::ios::cur);
-			info.nextFragment = getNextFragmentID();
-			info.serialize(file);
-			moveToNextFragmentID();
-		}
-	}
-
-	delete[] part;
-	files.insert(pair.first, toImport);
-	input.close();
 }
 
 void FileSystem::moveFile(const std::string& path, const std::string& dest)
@@ -288,7 +239,93 @@ void FileSystem::deleteFile(const std::string& path)
 	delete files.remove(path);
 }
 
-//void FileSystem::copyFile()
+// Needs Refactoring and append option to be used
+void FileSystem::importFile(const std::string& path, const std::string& dest)
+{
+	std::ifstream input(path, std::ios::in | std::ios::binary);
+	if (!input)
+		throw InvalidFileOperation("Can't open file for import!");
+
+	stringPair pair = splitPathAndName(dest);
+
+	File* toImport = new File(pair.second, getNextFragmentID());
+	moveToNextFragmentID();
+
+	size_t fileSize = File::getFileSize(input);
+	input.seekg(0, std::ios::beg);
+
+	byte* part = NULL;
+	allocate<byte>(part, BUFFER_SIZE);
+
+	SectorInformation info;
+
+	size_t readSize = BUFFER_SIZE;
+	while (fileSize)
+	{
+		if (readSize > fileSize)
+			readSize = fileSize;
+
+		input.read(reinterpret_cast<char*>(part), readSize * sizeof(byte));
+		info = write(part, readSize);
+		fileSize -= readSize;
+
+		if (fileSize && info.size < SectorInformation::AVAILABLE_SIZE())
+		{
+			//append(content, )
+			//if (readSize > fileSize)
+			//	readSize = fileSize;
+
+			//;
+			//fileSize -= append(part, readSize, info);
+			file.seekp(-(int)SectorInformation::SECTOR_SIZE, std::ios::cur);
+			info.nextFragment = getNextFragmentID();
+			info.serialize(file);
+			moveToNextFragmentID();
+		}
+	}
+
+	delete[] part;
+	files.insert(pair.first, toImport);
+	input.close();
+}
+
+void FileSystem::copyFile(const std::string& path, const std::string& dest)
+{
+	TNode* toCopy = files.getNode(path);
+	if (!toCopy)
+		throw InvalidFilePath("File not found.");
+
+	stringPair pair = splitPathAndName(dest);
+	byte* courier = NULL;
+	allocate<byte>(courier, BUFFER_SIZE);
+	File* theCopy = new File(pair.second, getNextFragmentID());
+	moveToNextFragmentID();
+
+	SectorInformation info;
+	int filled = 0;
+	int flag = 0;
+
+	file.seekg(toCopy->data->getFragmentID() * SectorInformation::SECTOR_SIZE, std::ios::beg);
+	do
+	{
+		filled = read(courier, info);
+		flag = info.nextFragment;
+		info = write(courier, filled);
+
+		if (flag != SectorInformation::noNext)
+		{
+			file.seekp(-(int)SectorInformation::SECTOR_SIZE, std::ios::cur);
+			info.nextFragment = getNextFragmentID();
+			info.serialize(file);
+			moveToNextFragmentID();
+			file.seekg(flag * SectorInformation::SECTOR_SIZE, std::ios::beg);
+		}
+
+	} while (flag != SectorInformation::noNext);
+
+	delete[] courier;
+	files.insert(pair.first, theCopy);
+}
 
 stringPair FileSystem::splitPathAndName(const std::string& path) const
 {

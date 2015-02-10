@@ -10,14 +10,18 @@ int main()
 		//FileSystem::create(FileSystem::FILE_NAME);
 		FileSystem fs;
 		fs.create(FileSystem::FILE_NAME, true);
-		//fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/rar");
 		//fs.exportFile("/rar", "C:\\users\\angelin\\desktop\\copy.rar");
 
 
 		fs.addDirectory("/empty");
-		fs.addEmptyFile("/empty/file");
+		//fs.addEmptyFile("/empty/file");
 		fs.addDirectory("/other");
-		fs.moveFile("/empty", "/other/emptyy");
+		fs.addDirectory("/other/nested");
+
+		fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/empty/rar");
+		fs.copyFile("/empty/rar", "/other/nested/rar_copy.r");
+		fs.exportFile("/other/nested/rar_copy.r", "C:\\users\\angelin\\desktop\\RAR_COPY.rar");
+
 		//fs.addEmptyFile("/empty");
 		//fs.addEmptyFile("/empty/dsa/ok");
 		//fs.addEmptyFile("/empty/other");
