@@ -45,7 +45,7 @@ private:
 	bool writeCore(const byte *&, size_t &, SectorInformation &);
 	int getNextFragmentID() const;
 	void moveToNextFragmentID();
-	size_t append(byte *&, size_t, SectorInformation &);
+	size_t append(byte *&, std::istream &, size_t, SectorInformation &);
 	
 
 private:

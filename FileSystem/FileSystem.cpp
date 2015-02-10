@@ -74,18 +74,31 @@ SectorInformation FileSystem::write(const byte* content, size_t size)
 	return info;
 }
 
-size_t FileSystem::append(byte*& content, size_t size, SectorInformation& info)
+size_t FileSystem::append(byte*& content, std::istream& input, size_t size, SectorInformation& info)
 {
 	size_t bytesWritten = size > info.freeSpace() ? info.freeSpace() : size;
+	input.read(reinterpret_cast<char*>(content), bytesWritten * sizeof(byte));
+
+	file.seekp(-static_cast<int>(SectorInformation::AVAILABLE_SIZE() - info.size), std::ios::cur);
 	file.write(reinterpret_cast<const char*>(content), bytesWritten * sizeof(byte));
-	content += info.freeSpace();
-	info.size += info.freeSpace();
 
-	info.nextFragment = getNextFragmentID();
-	moveToNextFragmentID();
+	info.size += bytesWritten;
+	if (info.size != SectorInformation::AVAILABLE_SIZE())
+	{
+		byte* nullBytes = new byte[info.freeSpace()];
+		memset(nullBytes, 0xFE, info.freeSpace() * sizeof(byte));
 
-	file.seekp(- static_cast<int>(info.size), std::ios::cur);
-	info.serialize(file);
+		file.write(reinterpret_cast<const char*>(nullBytes), info.freeSpace() * sizeof(byte));
+		delete[] nullBytes;
+	}
+	else
+	{
+		info.nextFragment = getNextFragmentID();
+		moveToNextFragmentID();
+
+		file.seekp(-static_cast<int>(SectorInformation::SECTOR_SIZE), std::ios::cur);
+		info.serialize(file);
+	}
 
 	return bytesWritten;
 }
@@ -258,6 +271,7 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 	allocate<byte>(part, BUFFER_SIZE);
 
 	SectorInformation info;
+	info.size = INT_MAX;
 
 	size_t readSize = BUFFER_SIZE;
 	while (fileSize)
@@ -269,19 +283,22 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 		info = write(part, readSize);
 		fileSize -= readSize;
 
-		if (fileSize && info.size < SectorInformation::AVAILABLE_SIZE())
-		{
-			//append(content, )
-			//if (readSize > fileSize)
-			//	readSize = fileSize;
+		if (info.size < SectorInformation::AVAILABLE_SIZE())
+				fileSize -= append(part, input, fileSize, info);
 
-			//;
-			//fileSize -= append(part, readSize, info);
-			file.seekp(-(int)SectorInformation::SECTOR_SIZE, std::ios::cur);
-			info.nextFragment = getNextFragmentID();
-			info.serialize(file);
-			moveToNextFragmentID();
-		}
+		//if (fileSize && info.size < SectorInformation::AVAILABLE_SIZE())
+		//{
+		//	fileSize -= append(part, fileSize, info);
+		//	//if (readSize > fileSize)
+		//	//	readSize = fileSize;
+
+		//	//;
+		//	//fileSize -= append(part, readSize, info);
+		//	/*file.seekp(-(int)SectorInformation::SECTOR_SIZE, std::ios::cur);
+		//	info.nextFragment = getNextFragmentID();
+		//	info.serialize(file);
+		//	moveToNextFragmentID();*/
+		//}
 	}
 
 	delete[] part;
