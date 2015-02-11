@@ -2,7 +2,9 @@
 #include "Sector.h"
 #include "FileSystemException.h"
 #include <sys/stat.h>
-
+#include <direct.h>
+#include "dirent/dirent.h"
+#include <iostream>
 
 typedef unsigned char byte;
 const char* FileSystem::FILE_NAME = "myFileSystem.bin";
@@ -22,7 +24,7 @@ void FileSystem::writeCoreData()
 	treeAt = file.tellp();
 
 	files.serialize(file);
-	file.write(reinterpret_cast<const char*>(&treeAt), sizeof(std::streamoff));
+	file.write(reinterpret_cast<const char*>(&treeAt), sizeof(size_t));
 	file.write(reinterpret_cast<const char*>(&lastFragmentID), sizeof(int));
 	file.write(reinterpret_cast<const char*>(&totalSize), sizeof(size_t));
 }
@@ -32,9 +34,9 @@ void FileSystem::readCoreData()
 	// ?
 	int variables = 2;
 
-	file.seekg(-static_cast<int>(variables * sizeof(int) + sizeof(std::streamoff)), std::ios::end);
+	file.seekg(-static_cast<int>(variables * sizeof(int) + sizeof(size_t)), std::ios::end);
 
-	file.read(reinterpret_cast<char*>(&treeAt), sizeof(std::streamoff));
+	file.read(reinterpret_cast<char*>(&treeAt), sizeof(size_t));
 	file.read(reinterpret_cast<char*>(&lastFragmentID), sizeof(int));
 	file.read(reinterpret_cast<char*>(&totalSize), sizeof(size_t));
 
@@ -64,12 +66,14 @@ void FileSystem::create(const std::string& path, bool newFS)
 SectorInfo FileSystem::writeToFS(const byte* content, size_t size)
 {
 	SectorInfo info;
+	size_t pos;
 
 	if (deletedSectors.isEmpty())
 		file.seekp(0, std::ios::end);
 	else
 		file.seekp(deletedSectors.peek() * SectorInfo::SECTOR_SIZE, std::ios::beg);
 
+	pos = file.tellg();
 	while (!writeCore(content, size, info))
 		moveToNextFragmentID();
 
@@ -127,7 +131,6 @@ bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
 		// ENDFIX
 
 		totalSize += info.size + SectorInfo::informationSize();
-		//file.seekp((-1) * info.size * static_cast<int>(sizeof(byte)), std::ios::cur);
 
 		return true;
 	}
@@ -150,6 +153,7 @@ void FileSystem::addEmptyFile(const std::string& file)
 {
 	stringPair pair = splitPathAndName(file);
 	int id = getNextFragmentID();
+	moveToNextFragmentID();
 
 	writeToFS(NULL, 0);
 
@@ -202,6 +206,27 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 	}
 }
 
+void FileSystem::exportDirectory(const std::string& path, const std::string& dest)
+{
+	TNode* dirNode = files.getNode(path);
+	if (!dirNode)
+		throw InvalidFilePath("Dir not found.");
+
+	if (!dirNode->data->isDirectory())
+		throw InvalidFileOperation("File is not a directory.");
+
+	_mkdir(dest.c_str());
+
+	for (ListIterator iter = dirNode->children.begin(); iter; ++iter)
+	{
+		if ((*iter)->data->isDirectory())
+			exportDirectory(buildPath(path, (*iter)->data->getName()), buildPath(dest, (*iter)->data->getName()));
+		else
+			exportFile(buildPath(path, (*iter)->data->getName()), buildPath(dest, (*iter)->data->getName()));
+	}
+
+}
+
 size_t FileSystem::readFromFS(byte* content, size_t maxSize, SectorInfo& info)
 {
 	int filled = 0;
@@ -247,12 +272,18 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 	if (!input)
 		throw InvalidFileOperation("Can't open file for import!");
 
+	size_t fileSize = File::getFileSize(input);
+	if (!fileSize)
+	{
+		addEmptyFile(dest);
+		return;
+	}
+
 	stringPair pair = splitPathAndName(dest);
 
 	File* toImport = new File(pair.second, getNextFragmentID());
 	moveToNextFragmentID();
 
-	std::streamoff fileSize = File::getFileSize(input);
 	input.seekg(0, std::ios::beg);
 
 	byte* part = NULL;
@@ -302,7 +333,7 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 
 	SectorInfo reader, writer;
 	size_t filled = 0;
-	std::streamoff tellgPos = toCopy->data->getFragmentID() * SectorInfo::SECTOR_SIZE;
+	size_t tellgPos = toCopy->data->getFragmentID() * SectorInfo::SECTOR_SIZE;
 
 	do
 	{
@@ -335,6 +366,7 @@ void FileSystem::copyDirectory(const std::string& path, const std::string& dest)
 
 	for (ListIterator iter = toCopy->children.begin(); iter; ++iter)
 	{
+		// fix
 		if ((*iter)->data->isDirectory())
 			copyDirectory(path + BACKSLASH_STR + (*iter)->data->getName(), 
 						  dest + BACKSLASH_STR + (*iter)->data->getName());
@@ -347,7 +379,7 @@ void FileSystem::copyDirectory(const std::string& path, const std::string& dest)
 ///
 /// Checks if the path is a directory, using the stat structure
 ///
-bool FileSystem::isDirectory(const std::string& path)
+bool FileSystem::isDirectory(const std::string& path) const
 {
 	struct stat buffer;
 	stat(path.c_str(), &buffer);
@@ -363,6 +395,24 @@ void FileSystem::importDirectory(const std::string& path, const std::string& des
 
 	stringPair pair = splitPathAndName(dest);
 	files.insert(pair.first, new Directory(pair.second));
+
+	DLList<std::string> fileNames = getFilesFromADirectory(path);
+	for (DLList<std::string>::Iterator iter = fileNames.begin(); iter; ++iter)
+	{
+		if (isDirectory(path + "\\" + (*iter)))
+			importDirectory(path + "\\" + (*iter), buildPath(dest, *iter));
+		else
+			importFile(path + "\\" + (*iter), buildPath(dest, *iter));
+	}
+}
+
+void FileSystem::rename(const std::string& path, const std::string& newName)
+{
+	TNode* toRename = files.getNode(path);
+	if (!toRename)
+		throw InvalidFilePath("File not found.");
+
+	toRename->data->setName(newName);
 }
 
 bool FileSystem::setNextFragment(SectorInfo& info)
@@ -374,6 +424,22 @@ bool FileSystem::setNextFragment(SectorInfo& info)
 	info.serialize(file);
 
 	return true;
+}
+
+DLList<std::string> FileSystem::getFilesFromADirectory(const std::string& path) const
+{
+	DLList<std::string> fileNames;
+	struct dirent* buffer;
+	DIR* dir = opendir(path.c_str());
+
+	if (!dir)
+		throw InvalidFilePath("Directory not found.");
+
+	while (buffer = readdir(dir))
+		if (strcmp(buffer->d_name, ".") && strcmp(buffer->d_name, ".."))
+			fileNames.pushBack(buffer->d_name);
+
+	return fileNames;
 }
 
 stringPair FileSystem::splitPathAndName(const std::string& path) const

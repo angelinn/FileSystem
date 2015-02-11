@@ -24,6 +24,11 @@ std::string getSecondPart(const std::string& path)
 	return std::string(path, nextBackslash + 1);
 }
 
+std::string buildPath(const std::string& first, const std::string& second)
+{
+	return first + BACKSLASH_STR + second;
+}
+
 template <typename T>
 void allocate(T*& arr, size_t size)
 {

@@ -122,7 +122,13 @@ TNode* Tree::remove(const std::string& path)
 void Tree::getNodeAt(const std::string& path, TNode*& currentNode, TNode*& result)
 {
 	if (currentNode->data == path)
+	{
 		result = currentNode;
+		return;
+	}
+
+	if (currentNode->data->getName() != path.substr(0, currentNode->data->getName().size()))
+		return;
 
 	std::string& pathLeft = getSecondPart(path);
 
@@ -149,7 +155,7 @@ void Tree::serializeRecursive(std::ostream& stream, TNode* node) const
 		serializeRecursive(stream, *iter);
 }
 
-void Tree::deserialize(std::istream& stream, std::streamoff at)
+void Tree::deserialize(std::istream& stream, size_t at)
 {
 	stream.seekg(at, std::ios::beg);
 	root = new TNode();
@@ -177,7 +183,11 @@ void Tree::DFS() const
 
 void Tree::DFSR(TNode* node) const
 {
-	std::cout << node->data->toString() << std::endl;
+	std::cout << "Father: " << node->data->toString() << std::endl << node->children.getSize() << std::endl;
+	for (ListIterator iter = node->children.begin(); iter; ++iter)
+		std::cout << (*iter)->data->toString() << " ";
+
+	std::cout << "\n-----------------------------------------\n";
 	for (ListIterator iter = node->children.begin(); iter; ++iter)
 		DFSR(*iter);
 }

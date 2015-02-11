@@ -22,15 +22,17 @@ public:
 
 public:
 	void addEmptyFile(const std::string &);
+	void addDirectory(const std::string &);
 	void importFile(const std::string &, const std::string &);
 	void importDirectory(const std::string &, const std::string &);
-	void addDirectory(const std::string &);
 	void exportFile(const std::string &, const std::string &);
+	void exportDirectory(const std::string &, const std::string &);
 	void deleteFile(const std::string &);
 	void moveFile(const std::string &, const std::string &);
 	void copyFile(const std::string &, const std::string &);
 	void copyDirectory(const std::string &, const std::string &);
-	bool isDirectory(const std::string &);
+	bool isDirectory(const std::string &) const;
+	void rename(const std::string &, const std::string &);
 
 public:
 	std::string getFileInfo(const std::string &);
@@ -38,6 +40,7 @@ public:
 
 	TNode* getFile(const std::string& str) { return files.getNode(str); }
 	void flush() { file.flush(); }
+	DLList<std::string> getFilesFromADirectory(const std::string &) const;
 
 private:
 	size_t readFromFS(byte *, size_t, SectorInfo &);
@@ -54,7 +57,7 @@ private:
 	
 
 private:
-	std::streamoff treeAt;
+	size_t treeAt;
 	int lastFragmentID;
 	std::fstream file;
 

@@ -20,7 +20,7 @@ public:
 	void setName(const std::string nn) { name = nn; }
 
 public:
-	virtual std::string toString();
+	virtual std::string toString() const;
 	virtual File* clone() { return new File(*this); }
 
 public:
@@ -28,6 +28,7 @@ public:
 	void deserialize(std::istream &);
 
 protected:
+	// NEEDS SIZE CALCULATED
 	bool isDir;
 	std::string name;
 

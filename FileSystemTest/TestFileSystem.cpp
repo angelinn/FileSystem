@@ -21,7 +21,6 @@ namespace FileSystemTest
 		TEST_METHOD_CLEANUP(TearDown)
 		{
 			delete fs;
-			//Assert::IsFalse(_CrtDumpMemoryLeaks());
 		}
 
 		TEST_METHOD(TestEmptyFileWriting)
@@ -212,6 +211,38 @@ namespace FileSystemTest
 
 			Assert::IsFalse(fs->isDirectory(file));
 			Assert::IsTrue(fs->isDirectory(dir));
+		}
+
+		TEST_METHOD(ExportDirectory)
+		{
+			fs->addDirectory("/empty");
+			fs->addDirectory("/empty/nested");
+			fs->addDirectory("/empty/other");
+
+			fs->importFile("C:\\users\\angelin\\desktop\\hello.rar", "/empty/nested/rar");
+			fs->importFile("C:\\users\\angelin\\desktop\\54 Angelin Nedelchev.docx", "/empty/nested/docx");
+
+			fs->exportDirectory("/empty", "C:\\users\\angelin\\desktop\\exported");
+
+			std::ifstream i("C:\\users\\angelin\\desktop\\hello.rar", std::ios::in | std::ios::binary);
+			std::ifstream o("C:\\users\\angelin\\desktop\\exported\\nested\\rar", std::ios::in | std::ios::binary);
+
+			if (!i || !o)
+				throw "can't open stream";
+
+			Assert::AreEqual(File::getFileSize(i), File::getFileSize(o));
+			i.close();
+			o.close();
+
+			i.open("C:\\users\\angelin\\desktop\\54 Angelin Nedelchev.docx", std::ios::in | std::ios::binary);
+			o.open("C:\\users\\angelin\\desktop\\exported\\nested\\docx", std::ios::in | std::ios::binary);
+
+			if (!i || !o)
+				throw "can't open stream";
+
+			Assert::AreEqual(File::getFileSize(i), File::getFileSize(o));
+			i.close();
+			o.close();
 		}
 	};
 }

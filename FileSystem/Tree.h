@@ -22,7 +22,7 @@ public:
 	void DFS() const;
 	void DFSR(TNode *) const;
 	void serialize(std::ostream &) const;
-	void deserialize(std::istream &, std::streamoff);
+	void deserialize(std::istream &, size_t);
 	void moveTree(TNode *, TNode *);
 
 private:

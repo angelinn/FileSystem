@@ -11,7 +11,7 @@ public:
 	Directory(const File *);
 
 public:
-	//virtual std::string toString();
+	virtual std::string toString() const;
 	virtual Directory* clone() { return new Directory(*this); }
 };
 

@@ -14,15 +14,15 @@ typedef DLList<TNode*>::Iterator ListIterator;
 
 stringPair splitPath(const std::string &);
 std::string getSecondPart(const std::string &);
+std::string buildPath(const std::string &, const std::string &);
 
 template <typename T>
 void allocate(T *&, size_t);
 
-
 // --------------------------------------------------------------------------------------------------------------
 
 const char BACKSLASH_CHAR = '/';
-const char* BACKSLASH_STR = "/";
+const char* const BACKSLASH_STR = "/";
 const int BYTE_SIZE = 4;
 const int KILO_BYTE = 1024;
 const int MEGA_BYTE = 1024 * KILO_BYTE;
