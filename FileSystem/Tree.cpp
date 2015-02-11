@@ -31,7 +31,7 @@ Tree::~Tree()
 void Tree::setRoot()
 {
 	if (!root)
-		root = new TNode(new Directory("/"), NULL);
+		root = new TNode(new Directory(BACKSLASH_STR), NULL);
 }
 
 void Tree::moveTree(TNode* source, TNode* dest)
@@ -115,6 +115,8 @@ TNode* Tree::remove(const std::string& path)
 			return toBeRemoved;
 		}
 	}
+
+	return NULL;
 }
 
 void Tree::getNodeAt(const std::string& path, TNode*& currentNode, TNode*& result)
@@ -147,7 +149,7 @@ void Tree::serializeRecursive(std::ostream& stream, TNode* node) const
 		serializeRecursive(stream, *iter);
 }
 
-void Tree::deserialize(std::istream& stream, int at)
+void Tree::deserialize(std::istream& stream, std::streamoff at)
 {
 	stream.seekg(at, std::ios::beg);
 	root = new TNode();

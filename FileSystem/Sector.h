@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-class SectorInformation
+class SectorInfo
 {
 public:
 	static const int noNext = -1;

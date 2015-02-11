@@ -6,8 +6,6 @@
 
 class Tree
 {
-	typedef DLList<TNode*>::Iterator ListIterator;
-
 public:
 	Tree();
 	Tree(const Tree &);
@@ -24,7 +22,7 @@ public:
 	void DFS() const;
 	void DFSR(TNode *) const;
 	void serialize(std::ostream &) const;
-	void deserialize(std::istream &, int);
+	void deserialize(std::istream &, std::streamoff);
 	void moveTree(TNode *, TNode *);
 
 private:

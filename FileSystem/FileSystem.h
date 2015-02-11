@@ -23,33 +23,38 @@ public:
 public:
 	void addEmptyFile(const std::string &);
 	void importFile(const std::string &, const std::string &);
+	void importDirectory(const std::string &, const std::string &);
 	void addDirectory(const std::string &);
 	void exportFile(const std::string &, const std::string &);
 	void deleteFile(const std::string &);
 	void moveFile(const std::string &, const std::string &);
 	void copyFile(const std::string &, const std::string &);
+	void copyDirectory(const std::string &, const std::string &);
+	bool isDirectory(const std::string &);
 
 public:
 	std::string getFileInfo(const std::string &);
 	void appendText(const std::string &, const std::string &);
 
 	TNode* getFile(const std::string& str) { return files.getNode(str); }
+	void flush() { file.flush(); }
 
 private:
-	int read(byte *, SectorInformation &);
+	size_t readFromFS(byte *, size_t, SectorInfo &);
 	void writeCoreData();
 	void readCoreData();
 	stringPair splitPathAndName(const std::string &) const;
 	void goToLastSector(int);
-	SectorInformation write(const byte *, size_t);
-	bool writeCore(const byte *&, size_t &, SectorInformation &);
+	SectorInfo writeToFS(const byte *, size_t);
+	bool writeCore(const byte *&, size_t &, SectorInfo &);
 	int getNextFragmentID() const;
 	void moveToNextFragmentID();
-	size_t append(byte *&, std::istream &, size_t, SectorInformation &);
+	void append(byte *&, size_t, SectorInfo &);
+	bool setNextFragment(SectorInfo &);
 	
 
 private:
-	int treeAt;
+	std::streamoff treeAt;
 	int lastFragmentID;
 	std::fstream file;
 

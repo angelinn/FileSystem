@@ -10,7 +10,7 @@ File::File(std::string n, int fragmentID) : name(n), startFragmentID(fragmentID)
 size_t File::getFileSize(std::istream& file)
 {
 	file.seekg(0, std::ios::end);
-	size_t size = file.tellg();
+	std::streamoff size = file.tellg();
 
 	if (size == -1)
 		throw "bla";

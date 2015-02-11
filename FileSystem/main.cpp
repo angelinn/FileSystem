@@ -19,7 +19,9 @@ int main()
 		fs.addDirectory("/other/nested");
 
 		fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/empty/rar");
-		//fs.copyFile("/empty/rar", "/other/nested/rar_copy.r");
+		fs.importFile("C:\\users\\angelin\\desktop\\54 Angelin Nedelchev.docx", "/other/nested/du");
+		fs.copyFile("/other/nested/du", "/empty/du_copy");
+		fs.exportFile("/empty/du_copy", "C:\\users\\angelin\\desktop\\copy.docx");
 		fs.exportFile("/empty/rar", "C:\\users\\angelin\\desktop\\RAR_COPY.rar");
 
 		//fs.addEmptyFile("/empty");

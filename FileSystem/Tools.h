@@ -4,10 +4,11 @@
 
 #include <string>
 #include <utility>
-
+#include "TNode.h"
 // --------------------------------------------------------------------------------------------------------------
 
 typedef std::pair<std::string, std::string> stringPair;
+typedef DLList<TNode*>::Iterator ListIterator;
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -21,6 +22,7 @@ void allocate(T *&, size_t);
 // --------------------------------------------------------------------------------------------------------------
 
 const char BACKSLASH_CHAR = '/';
+const char* BACKSLASH_STR = "/";
 const int BYTE_SIZE = 4;
 const int KILO_BYTE = 1024;
 const int MEGA_BYTE = 1024 * KILO_BYTE;

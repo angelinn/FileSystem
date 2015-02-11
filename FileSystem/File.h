@@ -8,7 +8,7 @@ class File
 {
 public:
 	File();
-	File(std::string, int = SectorInformation::noNext);
+	File(std::string, int = SectorInfo::noNext);
 
 public:
 	static size_t getFileSize(std::istream &);
