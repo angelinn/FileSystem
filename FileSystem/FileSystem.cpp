@@ -368,11 +368,11 @@ void FileSystem::copyDirectory(const std::string& path, const std::string& dest)
 	{
 		// fix
 		if ((*iter)->data->isDirectory())
-			copyDirectory(path + BACKSLASH_STR + (*iter)->data->getName(), 
-						  dest + BACKSLASH_STR + (*iter)->data->getName());
+			copyDirectory(buildPath(path, (*iter)->data->getName()), 
+						  buildPath(dest, (*iter)->data->getName()));
 		else
-			copyFile(path + BACKSLASH_STR + (*iter)->data->getName(), 
-					 dest + BACKSLASH_STR + (*iter)->data->getName());
+			copyFile(buildPath(path, (*iter)->data->getName()),
+					 buildPath(dest, (*iter)->data->getName()));
 	}
 }
 
@@ -424,6 +424,15 @@ bool FileSystem::setNextFragment(SectorInfo& info)
 	info.serialize(file);
 
 	return true;
+}
+
+std::string FileSystem::getFileInfo(const std::string& path)
+{
+	TNode* file = files.getNode(path);
+	if (!file)
+		throw InvalidFilePath("Wrong Path!");
+
+	return file->toString();
 }
 
 DLList<std::string> FileSystem::getFilesFromADirectory(const std::string& path) const

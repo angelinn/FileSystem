@@ -10,7 +10,6 @@ int main()
 		//FileSystem::create(FileSystem::FILE_NAME);
 		FileSystem fs;
 		fs.create(FileSystem::FILE_NAME, true);
-		//fs.exportFile("/rar", "C:\\users\\angelin\\desktop\\copy.rar");
 
 
 		//fs.addDirectory("/empty");
@@ -25,7 +24,6 @@ int main()
 		//fs.exportFile("/empty/rar", "C:\\users\\angelin\\desktop\\RAR_COPY.rar");
 
 		fs.importDirectory("D:\\angelin\\documents\\Eclipse", "/imported");
-		fs.flush();
 		fs.exportDirectory("/imported", "C:\\users\\angelin\\desktop\\export_the_imported");
 
 		//fs.addEmptyFile("/empty");

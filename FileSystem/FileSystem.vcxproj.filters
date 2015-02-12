@@ -92,10 +92,10 @@
     <ClInclude Include="CLI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Reader.h">
+    <ClInclude Include="FileSystemWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Writer.h">
+    <ClInclude Include="ReaderWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

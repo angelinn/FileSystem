@@ -11,6 +11,8 @@ public:
 	TNode(File *, TNode *);
 	~TNode();
 
+	std::string toString() const;
+
 	TNode* parent;
 	DLList<TNode*> children;
 	File* data;

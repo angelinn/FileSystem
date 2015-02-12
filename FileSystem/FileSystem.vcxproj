@@ -96,7 +96,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="FileSystemException.h" />
-    <ClInclude Include="Reader.h" />
+    <ClInclude Include="ReaderWriter.h" />
     <ClInclude Include="Sector.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />
@@ -104,7 +104,7 @@
     <ClInclude Include="Tools.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeException.h" />
-    <ClInclude Include="Writer.h" />
+    <ClInclude Include="FileSystemWriter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

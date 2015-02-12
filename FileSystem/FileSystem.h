@@ -33,35 +33,35 @@ public:
 	void copyDirectory(const std::string &, const std::string &);
 	bool isDirectory(const std::string &) const;
 	void rename(const std::string &, const std::string &);
-
-public:
-	std::string getFileInfo(const std::string &);
 	void appendText(const std::string &, const std::string &);
-
-	TNode* getFile(const std::string& str) { return files.getNode(str); }
-	void flush() { file.flush(); }
-	DLList<std::string> getFilesFromADirectory(const std::string &) const;
+	std::string getFileInfo(const std::string &);
 
 private:
 	size_t readFromFS(byte *, size_t, SectorInfo &);
-	void writeCoreData();
-	void readCoreData();
 	stringPair splitPathAndName(const std::string &) const;
-	void goToLastSector(int);
+	DLList<std::string> getFilesFromADirectory(const std::string &) const;
+
 	SectorInfo writeToFS(const byte *, size_t);
 	bool writeCore(const byte *&, size_t &, SectorInfo &);
+	void append(byte *&, size_t, SectorInfo &);
+
 	int getNextFragmentID() const;
 	void moveToNextFragmentID();
-	void append(byte *&, size_t, SectorInfo &);
 	bool setNextFragment(SectorInfo &);
-	
+
+	void writeCoreData();
+	void readCoreData();
+
+public:
+	TNode* getFile(const std::string& str) { return files.getNode(str); }
+	void flush() { file.flush(); }
 
 private:
 	size_t treeAt;
 	int lastFragmentID;
 	std::fstream file;
 
-
+	void goToLastSector(int);
 private:
 	// TO DO : Serialize Queue
 	Queue<int> deletedSectors;
