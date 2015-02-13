@@ -89,7 +89,7 @@ typename DLList<T>::Iterator& DLList<T>::Iterator::operator++()
 template <typename T>
 const typename DLList<T>::Iterator& DLList<T>::Iterator::operator--() const
 {
-	if (current)
+	if (current && current->prev)
 		current = current->prev;
 
 	return *this;

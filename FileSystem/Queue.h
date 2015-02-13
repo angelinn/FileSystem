@@ -3,6 +3,8 @@
 
 #include "Node.h"
 #include <stdexcept>
+#include <istream>
+#include <ostream>
 
 template <typename T>
 class Queue
@@ -22,6 +24,10 @@ public:
 	void enqueue(const T &);
 	T dequeue();
 	const T& peek() const;
+
+public:
+	void serializeBuiltInType(std::ostream &);
+	void deserializeBuiltInType(std::istream &);
 
 private:
 	int count;
@@ -50,8 +56,14 @@ void Queue<T>::clear()
 template <typename T>
 void Queue<T>::enqueue(const T& element)
 {
-	Node<T>* newLast = new Node<T>(element, last);
-	last = newLast;
+	if (!last)
+		last = new Node<T>(element, NULL);
+	else
+	{
+		Node<T>* newLast = new Node<T>(element, NULL);
+		last->next = newLast;
+		last = newLast;
+	}
 
 	++count;
 	if (count == 1)
@@ -82,5 +94,33 @@ const T& Queue<T>::peek() const
 
 	return first->data;
 }
+
+template <typename T>
+void Queue<T>::serializeBuiltInType(std::ostream& output)
+{
+	T data;
+
+	output.write(reinterpret_cast<const char*>(&count), sizeof(int));
+	while (!isEmpty())
+	{
+		data = dequeue();
+		output.write(reinterpret_cast<const char*>(&data), sizeof(T));
+	}
+}
+
+template <typename T>
+void Queue<T>::deserializeBuiltInType(std::istream& input)
+{
+	int size = 0;
+	input.read(reinterpret_cast<char*>(&size), sizeof(int));
+
+	T data;
+	for (int i = 0; i < size; ++i)
+	{
+		input.read(reinterpret_cast<char*>(&data), sizeof(T));
+		enqueue(data);
+	}
+}
+
 
 #endif // QUEUE_H

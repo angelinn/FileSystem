@@ -244,5 +244,19 @@ namespace FileSystemTest
 			i.close();
 			o.close();
 		}
+
+		TEST_METHOD(DeleteSingleFile)
+		{
+			fs->addDirectory("/empty");
+			fs->importFile("C:\\users\\angelin\\desktop\\54 Angelin Nedelchev.docx", "/empty/docx");
+			fs->importFile("C:\\users\\angelin\\desktop\\hello.rar", "/empty/rar");
+			fs->deleteFile("/empty/docx");
+
+			std::ifstream sizeSlave("C:\\users\\angelin\\desktop\\hello.rar", std::ios::in | std::ios::binary);
+			size_t expected = File::getFileSize(sizeSlave);
+			sizeSlave.close();
+
+			Assert::AreEqual(fs->getTotalSize(), expected);
+		}
 	};
 }

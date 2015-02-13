@@ -18,6 +18,8 @@ public:
 	int getFragmentID() const { return startFragmentID; }
 	std::string getName() const { return name; }
 	void setName(const std::string nn) { name = nn; }
+	size_t getSize() const { return size; }
+	void setSize(size_t ns) { size = ns; }
 
 public:
 	virtual std::string toString() const;
@@ -28,9 +30,9 @@ public:
 	void deserialize(std::istream &);
 
 protected:
-	// NEEDS SIZE CALCULATED
 	bool isDir;
 	std::string name;
+	size_t size;
 
 private:
 	size_t startFragmentID;

@@ -28,6 +28,7 @@ public:
 	void exportFile(const std::string &, const std::string &);
 	void exportDirectory(const std::string &, const std::string &);
 	void deleteFile(const std::string &);
+	void deleteDirectory(const std::string &);
 	void moveFile(const std::string &, const std::string &);
 	void copyFile(const std::string &, const std::string &);
 	void copyDirectory(const std::string &, const std::string &);
@@ -55,6 +56,9 @@ private:
 public:
 	TNode* getFile(const std::string& str) { return files.getNode(str); }
 	void flush() { file.flush(); }
+	size_t getTotalSize() const { return totalSize; }
+	size_t getSize(size_t);
+	void deleteAllSectors(size_t);
 
 private:
 	size_t treeAt;
