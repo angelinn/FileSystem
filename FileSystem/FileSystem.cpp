@@ -9,6 +9,7 @@
 typedef unsigned char byte;
 const char* FileSystem::FILE_NAME = "myFileSystem.bin";
 
+
 FileSystem::FileSystem() : treeAt(-1), lastFragmentID(-1), totalSize(0)
 {  }
 
@@ -93,11 +94,8 @@ void FileSystem::append(byte*& content, size_t size, SectorInfo& info)
 	info.size += size;
 	if (info.size != SectorInfo::AVAILABLE_SIZE())
 	{
-		byte* nullBytes = new byte[info.freeSpace()];
-		memset(nullBytes, 0xFE, info.freeSpace() * sizeof(byte));
-
-		file.write(reinterpret_cast<const char*>(nullBytes), info.freeSpace() * sizeof(byte));
-		delete[] nullBytes;
+		file.seekp(info.freeSpace() - 1, std::ios::cur);
+		file.write(reinterpret_cast<const char*>(&NULL_BYTE), sizeof(byte));
 	}
 }
 
@@ -105,7 +103,7 @@ bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
 {
 
 	info.nextFragment = getNextFragmentID();
-	std::cout << "Next: " << info.nextFragment << std::endl;
+	//std::cout << "Next: " << info.nextFragment << std::endl;
 
 	if (size > SectorInfo::AVAILABLE_SIZE())
 	{
@@ -128,13 +126,11 @@ bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
 		if (content)
 			file.write(reinterpret_cast<const char*>(content), info.size * sizeof(byte));
 
-		// FIX IT
-		byte* nullBytes = new byte[info.freeSpace()];
-		memset(nullBytes, 0x00, info.freeSpace() * sizeof(byte));
-
-		file.write(reinterpret_cast<const char*>(nullBytes), info.freeSpace() * sizeof(byte));
-		delete[] nullBytes;
-		// ENDFIX
+		if (info.freeSpace())
+		{
+			file.seekp(info.freeSpace() - 1, std::ios::cur);
+			file.write(reinterpret_cast<const char*>(&NULL_BYTE), sizeof(byte));
+		}
 
 		return true;
 	}
@@ -186,29 +182,29 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 {
 	TNode* fileNode = files.getNode(path);
 
-	if (fileNode)
+	if (!fileNode)
+		throw InvalidFilePath("No file found.");
+
+	std::ofstream output(dest, std::ios::out | std::ios::binary);
+	if (!output)
+		throw InvalidFileOperation("Couldn't open file for writing!");
+
+	file.seekg(fileNode->data->getFragmentID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
+
+	byte* placeholder = NULL;
+	allocate<byte>(placeholder, BUFFER_SIZE);
+
+	SectorInfo info;
+	size_t filled = 0;
+	do
 	{
-		std::ofstream output(dest, std::ios::out | std::ios::binary);
-		if (!output)
-			throw InvalidFileOperation("Couldn't open file for writing!");
+		filled = readFromFS(placeholder, BUFFER_SIZE, info);
+		//std::cout << info.nextFragment << std::endl;
+		output.write(reinterpret_cast<const char*>(placeholder), filled * sizeof(byte));
+	} while (info.nextFragment != SectorInfo::noNext);
 
-		file.seekg(fileNode->data->getFragmentID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
-
-		byte* placeholder = NULL;
-		allocate<byte>(placeholder, BUFFER_SIZE);
-
-		SectorInfo info;
-		size_t filled = 0;
-		do
-		{
-			filled = readFromFS(placeholder, BUFFER_SIZE, info);
-			std::cout << info.nextFragment << std::endl;
-			output.write(reinterpret_cast<const char*>(placeholder), filled * sizeof(byte));
-		} while (info.nextFragment != SectorInfo::noNext);
-
-		output.close();
-		delete[] placeholder;
-	}
+	output.close();
+	delete[] placeholder;
 }
 
 void FileSystem::exportDirectory(const std::string& path, const std::string& dest)
@@ -312,6 +308,8 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 	if (!input)
 		throw InvalidFileOperation("Can't open file for import!");
 
+
+	//std::cout << "Importing " << path << std::endl;
 	size_t fileSize = File::getFileSize(input);
 	input.seekg(0, std::ios::beg);
 	if (!fileSize)
@@ -447,7 +445,6 @@ void FileSystem::copyDirectory(const std::string& path, const std::string& dest)
 
 	for (ListIterator iter = toCopy->children.begin(); iter; ++iter)
 	{
-		// fix
 		if ((*iter)->data->isDirectory())
 			copyDirectory(buildPath(path, (*iter)->data->getName()), 
 						  buildPath(dest, (*iter)->data->getName()));
@@ -473,7 +470,8 @@ void FileSystem::importDirectory(const std::string& path, const std::string& des
 {
 	if (!isDirectory(path))
 		throw InvalidFilePath("File is not a directory!");
-
+	
+	std::cout << "Importing " << path << std::endl;
 	stringPair pair = splitPathAndName(dest);
 	files.insert(pair.first, new Directory(pair.second));
 
@@ -510,7 +508,7 @@ std::string FileSystem::getFileInfo(const std::string& path)
 {
 	TNode* file = files.getNode(path);
 	if (!file)
-		throw InvalidFilePath("Wrong Path!");
+		throw InvalidFilePath("wrong path - getFileInfo()");
 
 	return file->toString();
 }

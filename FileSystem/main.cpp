@@ -1,25 +1,37 @@
 #include <iostream>
 #include <crtdbg.h>
 #include "CLI.h"
+#include <ctime>
+
+
+
+void parseInput(DLList<std::string>& result)
+{
+}
 
 int main()
 {
 	try
 	{
-		//CLI cli;
+		CLI cli;
+		cli.standby();
 		//FileSystem::create(FileSystem::FILE_NAME);
-		FileSystem fs;
-		fs.create(FileSystem::FILE_NAME, false);
+		//FileSystem fs;
+		//fs.create(FileSystem::FILE_NAME, true);
 
 		//fs.addDirectory("/empty");
 
-		//fs.importDirectory("C:\\users\\angelin\\desktop\\dirent-1.20.1", "/empty/dir");
-		//fs.exportDirectory("/empty/dir", "C:\\users\\angelin\\desktop\\dirent_copy");
+		//fs.importDirectory("C:\\users\\angelin\\desktop", "/desktop");
+		//fs.exportDirectory("/desktop", "C:\\users\\angelin\\desktop\\desktop_copy");
 		//fs.deleteDirectory("/empty/dir");
 		
-		fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/empty/rar");
-		
+		//clock_t start = clock();
+		//fs.importDirectory("D:\\Downloads\\Emergency 4 - Global Fighters For Life (2006)", "/empty/rar");
+		//std::cout << "Imported for " << (clock() - start) / CLOCKS_PER_SEC << std::endl;
 
+		//start = clock();
+		//fs.exportDirectory("/empty/rar", "C:\\users\\angelin\\desktop\\em_copy");
+		//std::cout << "Exported for " << (clock() - start) / CLOCKS_PER_SEC << std::endl;
 		//fs.deleteFile("/empty/docx");
 		//fs.addEmptyFile("/empty/emp");
 
@@ -41,8 +53,8 @@ int main()
 		//fs.addEmptyFile("/empty/dsa/ok");
 		//fs.addEmptyFile("/empty/other");
 
-		fs.printTree();
-		std::cout << std::endl << fs.getTotalSize() << " vs " << fs.getSize(0) << std::endl;
+		//fs.printTree();
+		//std::cout << std::endl << fs.getTotalSize() << " vs " << fs.getSize(0) << std::endl;
 	}
 	catch (std::exception e)
 	{

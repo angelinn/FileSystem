@@ -170,6 +170,11 @@ void Tree::deserializeRecursive(std::istream& stream, TNode*& node)
 	for (int i = 0; i < size; ++i)
 		node->children.pushBack(new TNode());
 
+	bool isDir = false;
+	stream.read(reinterpret_cast<char*>(&isDir), sizeof(bool));
+
+	node->data = isDir ? new Directory() : new File();
+
 	node->data->deserialize(stream);
 
 	for (ListIterator iter = node->children.begin(); iter; ++iter)

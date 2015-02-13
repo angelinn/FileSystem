@@ -27,6 +27,7 @@ const int BYTE_SIZE = 4;
 const int KILO_BYTE = 1024;
 const int MEGA_BYTE = 1024 * KILO_BYTE;
 const int BUFFER_SIZE = 64 * KILO_BYTE;
+const unsigned char NULL_BYTE = 0x00;
 
 // --------------------------------------------------------------------------------------------------------------
 

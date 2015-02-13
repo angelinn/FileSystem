@@ -7,6 +7,7 @@
 class Directory : public File
 {
 public:
+	Directory();
 	Directory(const std::string &);
 	Directory(const File *);
 

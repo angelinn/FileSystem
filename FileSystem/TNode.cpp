@@ -13,10 +13,11 @@ TNode::~TNode()
 std::string TNode::toString() const
 {
 	std::string result;
-	result += data->toString() + '\n';
+	result += "\nContents of " + data->toString() + "\n\n";
 
 	for (ListIterator iter = children.begin(); iter; ++iter)
 		result += (*iter)->data->toString() + '\n';
 
+	result += "\nTotal of (" + std::to_string(children.getSize()) + ") files.\n";
 	return result;
 }
