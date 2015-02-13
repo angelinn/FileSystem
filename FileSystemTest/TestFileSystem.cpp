@@ -74,8 +74,6 @@ namespace FileSystemTest
 			fs->addEmptyFile("/empty/other/other_file");
 			fs->moveFile("/empty", "/test/dest/empty_moved");
 
-			fs->printTree();
-
 			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved")->data->getName().compare("empty_moved"));
 			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved/other")->data->getName().compare("other"));
 			Assert::IsTrue(!fs->getFile("/test/dest/empty_moved/dsa")->data->getName().compare("dsa"));
@@ -168,6 +166,9 @@ namespace FileSystemTest
 			Assert::AreEqual(File::getFileSize(i), File::getFileSize(o));
 			i.close();
 			o.close();
+
+			std::remove("C:\\users\\angelin\\desktop\\copy.docx");
+			std::remove("C:\\users\\angelin\\desktop\\RAR_COPY.rar");
 		}
 
 		TEST_METHOD(CopyDirectoryAndExportFiles)
@@ -202,6 +203,9 @@ namespace FileSystemTest
 			Assert::AreEqual(File::getFileSize(i), File::getFileSize(o));
 			i.close();
 			o.close();
+
+			std::remove("C:\\users\\angelin\\desktop\\copy.docx");
+			std::remove("C:\\users\\angelin\\desktop\\RAR_COPY.rar");
 		}
 
 		TEST_METHOD(IsDirectory)
@@ -243,6 +247,8 @@ namespace FileSystemTest
 			Assert::AreEqual(File::getFileSize(i), File::getFileSize(o));
 			i.close();
 			o.close();
+
+			std::remove("C:\\users\\angelin\\exported");
 		}
 
 		TEST_METHOD(DeleteSingleFile)
