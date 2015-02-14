@@ -1,10 +1,10 @@
 #include <fstream>
 #include "FileSystem.h"
 
-File::File() : startFragmentID(0), isDir(false), size(0)
+File::File() : firstSectorID(-1), lastSectorID(-1), isDir(false), size(0)
 {  }
 
-File::File(std::string n, int fragmentID) : name(n), startFragmentID(fragmentID), isDir(false), size(0)
+File::File(std::string n, int st, int end) : name(n), firstSectorID(st), lastSectorID(end), isDir(false), size(0)
 {  }
 
 File::File(const File* other) : File(*other)
@@ -34,7 +34,8 @@ void File::serialize(std::ostream& output) const
 
 	output.write(reinterpret_cast<const char*>(&strSize), sizeof(size_t));
 	output.write(name.c_str(), strSize * sizeof(char));
-	output.write(reinterpret_cast<const char*>(&startFragmentID), sizeof(int));
+	output.write(reinterpret_cast<const char*>(&firstSectorID), sizeof(int));
+	output.write(reinterpret_cast<const char*>(&lastSectorID), sizeof(int));
 	output.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
 }
 
@@ -50,11 +51,22 @@ void File::deserialize(std::istream& input)
 	name = buffer;
 	delete[] buffer;
 
-	input.read(reinterpret_cast<char*>(&startFragmentID), sizeof(int));
+	input.read(reinterpret_cast<char*>(&firstSectorID), sizeof(int));
+	input.read(reinterpret_cast<char*>(&lastSectorID), sizeof(int));
 	input.read(reinterpret_cast<char*>(&size), sizeof(size_t));
 }
 
-bool operator==(const File* file, const std::string& string)
+void File::setSize(size_t updatedSize)
 {
-	return file->name.compare(string) == 0;
+	size = updatedSize;
+}
+
+void File::setName(const std::string& updatedName)
+{
+	name = updatedName;
+}
+
+void File::setLastSectorID(int last)
+{
+	lastSectorID = last;
 }

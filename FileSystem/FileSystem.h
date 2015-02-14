@@ -5,6 +5,7 @@
 #include "Tree.h"
 #include "Tools.h"
 #include "Queue.h"
+#include "WriteState.h"
 #include <fstream>
 
 struct ReadState;
@@ -16,9 +17,7 @@ class FileSystem
 public:
 	FileSystem();
 	~FileSystem();
-	static const char* FILE_NAME;
-
-	void create(const std::string &, bool = false);
+	void create(const std::string &, bool);
 
 public:
 	void addEmptyFile(const std::string &);
@@ -42,13 +41,13 @@ private:
 	stringPair splitPathAndName(const std::string &) const;
 	DLList<std::string> getFilesFromADirectory(const std::string &) const;
 
-	SectorInfo writeToFS(const byte *, size_t);
-	bool writeCore(const byte *&, size_t &, SectorInfo &);
-	void append(byte *, size_t, SectorInfo &);
+	WriteState writeToFS(const byte *, size_t);
+	bool writeCore(const byte *&, size_t &, WriteState &);
+	void append(const byte *, size_t, SectorInfo &);
 
-	int getNextFragmentID() const;
-	void moveToNextFragmentID();
-	bool setNextFragment(SectorInfo &);
+	int getNextSectorID() const;
+	void moveTonextSectorID();
+	bool setnextSector(SectorInfo &);
 
 	void writeCoreData();
 	void readCoreData();
@@ -56,7 +55,6 @@ private:
 public:
 	TNode* getFile(const std::string& str) { return files.getNode(str); }
 	size_t getTotalSize() const { return totalSize; }
-	size_t getSize(size_t);
 	void deleteAllSectors(size_t);
 
 private:

@@ -2,13 +2,13 @@
 #define FILE_H
 
 #include <string>
-#include "Sector.h"
+#include "SectorInfo.h"
 
 class File
 {
 public:
 	File();
-	File(std::string, int = SectorInfo::noNext);
+	File(std::string, int = SectorInfo::noNext, int = SectorInfo::noNext);
 	File(const File *);
 
 public:
@@ -16,11 +16,15 @@ public:
 
 public:
 	bool isDirectory() const { return isDir; }
-	int getFragmentID() const { return startFragmentID; }
+	int getFirstSectorID() const { return firstSectorID; }
+	int getLastSectorID() const { return lastSectorID; }
 	std::string getName() const { return name; }
-	void setName(const std::string nn) { name = nn; }
 	size_t getSize() const { return size; }
-	void setSize(size_t ns) { size = ns; }
+
+public:
+	void setSize(size_t);
+	void setLastSectorID(int);
+	void setName(const std::string &);
 
 public:
 	virtual std::string toString() const;
@@ -36,12 +40,9 @@ protected:
 	size_t size;
 
 private:
-	size_t startFragmentID;
-
-	friend bool operator==(const File *, const std::string &);
+	int firstSectorID;
+	int lastSectorID;
 };
-
-bool operator==(const File *, const std::string &);
 
 
 #endif // FILE_H

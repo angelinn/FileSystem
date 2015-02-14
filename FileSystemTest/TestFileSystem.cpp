@@ -15,7 +15,7 @@ namespace FileSystemTest
 		TEST_METHOD_INITIALIZE(SetUp)
 		{
 			fs = new FileSystem();
-			fs->create(FileSystem::FILE_NAME, true);
+			fs->create("myTestFS.bin", true);
 		}
 
 		TEST_METHOD_CLEANUP(TearDown)
@@ -32,7 +32,7 @@ namespace FileSystemTest
 
 			size_t expectedSize = SectorInfo::SECTOR_SIZE * 3;
 
-			std::fstream testFile(FileSystem::FILE_NAME, std::ios::in | std::ios::binary);
+			std::fstream testFile("myTestFS.bin", std::ios::in | std::ios::binary);
 			if (!testFile)
 				throw - 1;
 
@@ -46,7 +46,7 @@ namespace FileSystemTest
 
 			size_t expectedSize = SectorInfo::SECTOR_SIZE;
 
-			std::fstream testFile(FileSystem::FILE_NAME, std::ios::in | std::ios::binary);
+			std::fstream testFile("myTestFS.bin", std::ios::in | std::ios::binary);
 			if (!testFile)
 				throw - 1;
 

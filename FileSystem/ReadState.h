@@ -1,7 +1,7 @@
 #ifndef READ_STATE
 #define READ_STATE
 
-#include "Sector.h"
+#include "SectorInfo.h"
 
 ///
 /// Structure to help while reading from a file

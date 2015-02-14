@@ -81,7 +81,7 @@
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileSystem.cpp" />
-    <ClCompile Include="Sector.cpp" />
+    <ClCompile Include="SectorInfo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TNode.cpp" />
     <ClCompile Include="Tools.cpp" />
@@ -96,9 +96,8 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="FileSystemException.h" />
-    <ClInclude Include="ReaderWriter.h" />
     <ClInclude Include="ReadState.h" />
-    <ClInclude Include="Sector.h" />
+    <ClInclude Include="SectorInfo.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="TNode.h" />
@@ -106,6 +105,7 @@
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeException.h" />
     <ClInclude Include="FileSystemWriter.h" />
+    <ClInclude Include="WriteState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

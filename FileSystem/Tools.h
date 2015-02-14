@@ -36,7 +36,11 @@ const char RESPONSE_NEW = 'n';
 const char SOUND_CHAR = '\a';
 const char* const PROMPT = "> ";
 const char* const LOADING_MESSAGE = "loading ..";
-const char* const HELP_MESSAGE = "h";
+const char* const HELP_MESSAGE = "\nHello!\nYou can use the following commands:\n"
+				"mkdir <path>\nimport-file <from> <to>\nimport-dir <from> <to>\nexport-dir <from> <to>\nexport-file <from> <to>\n"
+				"move <from> <to>\ndir <path>\ndelete-file <path>\ndelete-dir<path>copy-file <from> <to>\ncopy-dir <from> <to>\n"
+				"rename <path> <name>\nappend <path> <text>\nexit\nhelp";
+
 const char* const FILE_NAME_REQUEST = "\nType in the name of the File\n> ";
 const char* const PROMPT_ON_CREATE = "If you want to create a new file system, type 'n'!\n"
 									 "Else if you want to create an existing one type 'e'!\n";

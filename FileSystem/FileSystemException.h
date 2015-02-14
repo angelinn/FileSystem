@@ -24,12 +24,18 @@ public:
 	{  }
 };
 
-class FileOpeningFailed : public FileSystemException
+class FileOpenError : public FileSystemException
 {
 public:
-	FileOpeningFailed(const char* message) : FileSystemException(message)
+	FileOpenError(const char* message) : FileSystemException(message)
 	{  }
 };
 
+class InvalidFileType : public FileSystemException
+{
+public:
+	InvalidFileType(const char* message) : FileSystemException(message)
+	{  }
+};
 
 #endif // FS_EXCEPTION

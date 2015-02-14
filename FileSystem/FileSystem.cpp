@@ -4,10 +4,8 @@
 #include <direct.h>
 #include "dirent/dirent.h"
 #include "ReadState.h"
-#include <iostream>
 
 typedef unsigned char byte;
-const char* FileSystem::FILE_NAME = "myFileSystem.bin";
 
 ///
 /// Sets default values for core variables
@@ -46,7 +44,6 @@ void FileSystem::writeCoreData()
 
 void FileSystem::readCoreData()
 {
-	// ?
 	int variables = 3;
 
 	file.seekg(-static_cast<int>(variables * sizeof(int)), std::ios::end);
@@ -68,7 +65,7 @@ void FileSystem::create(const std::string& path, bool newFS)
 	{
 		file.open(path, std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 		if (!file)
-			throw FileOpeningFailed("Can't open file in create() method.");
+			throw FileOpenError("Can't open file in create() method.");
 
 		files.setRoot();
 	}
@@ -76,7 +73,7 @@ void FileSystem::create(const std::string& path, bool newFS)
 	{
 		file.open(path, std::ios::in | std::ios::out | std::ios::binary);
 		if (!file)
-			throw FileOpeningFailed("Can't open file in create() method.");
+			throw FileOpenError("Can't open file in create() method.");
 
 		readCoreData();
 	}
@@ -85,24 +82,26 @@ void FileSystem::create(const std::string& path, bool newFS)
 ///
 /// Writes a byte array to the file system
 ///
-SectorInfo FileSystem::writeToFS(const byte* content, size_t size)
+WriteState FileSystem::writeToFS(const byte* content, size_t size)
 {
-	SectorInfo info;
+	WriteState state;
+	state.lastSectorID = getNextSectorID();
 
 	do
 	{
-		file.seekp(getNextFragmentID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
-		moveToNextFragmentID();
+		file.seekp(getNextSectorID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
+		moveTonextSectorID();
 	}
-	while (!writeCore(content, size, info));
+	while (!writeCore(content, size, state));
 
-	return info;
+	return state;
 }
 
 ///
-/// ??
+/// Appends a byte array to the sector that the file points at
+/// (you must seekp() before using this method)
 /// 
-void FileSystem::append(byte* content, size_t size, SectorInfo& info)
+void FileSystem::append(const byte* content, size_t size, SectorInfo& info)
 {
 	file.seekp(-static_cast<int>(SectorInfo::AVAILABLE_SIZE() - info.size), std::ios::cur);
 	file.write(reinterpret_cast<const char*>(content), size * sizeof(byte));
@@ -123,36 +122,36 @@ void FileSystem::append(byte* content, size_t size, SectorInfo& info)
 ///
 /// Writes a byte array into a single sector of the file system
 /// 
-bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
+bool FileSystem::writeCore(const byte*& content, size_t& size, WriteState& state)
 {
 
-	info.nextFragment = getNextFragmentID();
-	//std::cout << "Next: " << info.nextFragment << std::endl;
+	state.info.nextSector = getNextSectorID();
+	//std::cout << "Next: " << state.info.nextSector << std::endl;
 
 	if (size > SectorInfo::AVAILABLE_SIZE())
 	{
-		info.size = SectorInfo::AVAILABLE_SIZE();
-		info.serialize(file);
+		state.info.size = SectorInfo::AVAILABLE_SIZE();
+		state.info.serialize(file);
 
-		file.write(reinterpret_cast<const char*>(content), info.size * sizeof(byte));
-		size -= info.size;
-		content += info.size;
+		file.write(reinterpret_cast<const char*>(content), state.info.size * sizeof(byte));
+		size -= state.info.size;
+		content += state.info.size;
 
 		return false;
 	}
 
 	else
 	{
-		info.size = size;
-		info.nextFragment = SectorInfo::noNext;
-		info.serialize(file);
+		state.info.size = size;
+		state.info.nextSector = SectorInfo::noNext;
+		state.info.serialize(file);
 
 		if (content)
-			file.write(reinterpret_cast<const char*>(content), info.size * sizeof(byte));
+			file.write(reinterpret_cast<const char*>(content), state.info.size * sizeof(byte));
 
-		if (info.freeSpace())
+		if (state.info.freeSpace())
 		{
-			file.seekp(info.freeSpace() - 1, std::ios::cur);
+			file.seekp(state.info.freeSpace() - 1, std::ios::cur);
 			file.write(reinterpret_cast<const char*>(&NULL_BYTE), sizeof(byte));
 		}
 
@@ -163,7 +162,7 @@ bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
 ///
 /// Returns the next free fragment ID
 /// 
-inline int FileSystem::getNextFragmentID() const
+inline int FileSystem::getNextSectorID() const
 {
 	return deletedSectors.isEmpty() ? lastFragmentID + 1 : deletedSectors.peek();
 }
@@ -171,7 +170,7 @@ inline int FileSystem::getNextFragmentID() const
 ///
 /// Sets the next fragment ID
 ///
-void FileSystem::moveToNextFragmentID()
+void FileSystem::moveTonextSectorID()
 {
 	if (deletedSectors.isEmpty())
 		++lastFragmentID;
@@ -185,7 +184,7 @@ void FileSystem::moveToNextFragmentID()
 void FileSystem::addEmptyFile(const std::string& file)
 {
 	stringPair pair = splitPathAndName(file);
-	File* empty = new File(pair.second, getNextFragmentID());
+	File* empty = new File(pair.second, getNextSectorID());
 	empty->setSize(0);
 
 	writeToFS(NULL, 0);
@@ -229,9 +228,9 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 
 	std::ofstream output(dest, std::ios::out | std::ios::binary);
 	if (!output)
-		throw InvalidFileOperation("Couldn't open file for writing!");
+		throw FileOpenError("Couldn't open file for writing!");
 
-	file.seekg(fileNode->data->getFragmentID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
+	file.seekg(fileNode->data->getFirstSectorID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
 
 	byte* placeholder = NULL;
 	allocate<byte>(placeholder, BUFFER_SIZE);
@@ -241,9 +240,9 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 	do
 	{
 		state = readFromFS(placeholder, BUFFER_SIZE);
-		//std::cout << "read " << state.info.nextFragment << std::endl;
+		//std::cout << "read " << state.info.nextSector << std::endl;
 		output.write(reinterpret_cast<const char*>(placeholder), state.filled * sizeof(byte));
-	} while ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite);
+	} while ((state.info.nextSector != SectorInfo::noNext) || state.wouldOverwrite);
 
 	output.close();
 	delete[] placeholder;
@@ -259,7 +258,7 @@ void FileSystem::exportDirectory(const std::string& path, const std::string& des
 		throw InvalidFilePath("Dir not found.");
 
 	if (!dirNode->data->isDirectory())
-		throw InvalidFileOperation("File is not a directory.");
+		throw InvalidFileType("File is not a directory.");
 
 	_mkdir(dest.c_str());
 
@@ -303,8 +302,8 @@ ReadState FileSystem::readFromFS(byte* content, size_t maxSize)
 		file.read(reinterpret_cast<char*>(content), sizeof(byte) * state.info.size);
 		state.filled += state.info.size;
 		content += state.info.size;
-		file.seekg(state.info.nextFragment * SectorInfo::SECTOR_SIZE, std::ios::beg);
-	} while (state.info.nextFragment != SectorInfo::noNext);
+		file.seekg(state.info.nextSector * SectorInfo::SECTOR_SIZE, std::ios::beg);
+	} while (state.info.nextSector != SectorInfo::noNext);
 
 	content -= state.info.size;
 	state.wouldOverwrite = false;
@@ -323,7 +322,7 @@ void FileSystem::deleteFile(const std::string& path)
 
 	if (toDelete->data->isDirectory())
 		throw InvalidFileOperation("File is a directory. (file expected)");
-	deleteAllSectors(toDelete->data->getFragmentID());
+	deleteAllSectors(toDelete->data->getFirstSectorID());
 	totalSize -= toDelete->data->getSize();
 
 	delete files.remove(path);
@@ -339,7 +338,7 @@ void FileSystem::deleteDirectory(const std::string& path)
 		throw InvalidFilePath("Dir not found!");
 
 	if (!toDelete->data->isDirectory())
-		throw InvalidFileOperation("File is not a directory.");
+		throw InvalidFileType("File is not a directory.");
 
 	for (ListIterator iter = toDelete->children.begin(); iter;)
 	{
@@ -363,7 +362,6 @@ void FileSystem::deleteDirectory(const std::string& path)
 	delete files.remove(path);
 }
 
-std::ofstream thing("C:\\users\\angelin\\desktop\\someth.txt", std::ios::out | std::ios::trunc);
 ///
 /// Imports a file from the real FS to this one
 ///
@@ -371,10 +369,8 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 {
 	std::ifstream input(path, std::ios::in | std::ios::binary);
 	if (!input)
-		throw InvalidFileOperation("Can't open file for import!");
+		throw FileOpenError("Can't open file for import!");
 
-
-	thing << "Importing " << path << std::endl;
 	size_t fileSize = File::getFileSize(input);
 	input.seekg(0, std::ios::beg);
 	if (!fileSize)
@@ -384,15 +380,12 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 	}
 
 	stringPair pair = splitPathAndName(dest);
-
-	File* toImport = new File(pair.second, getNextFragmentID());
+	File* toImport = new File(pair.second, getNextSectorID());
 
 	byte* part = NULL;
 	allocate<byte>(part, BUFFER_SIZE);
 
-	SectorInfo info;
-	info.size = INT_MAX;
-
+	WriteState state;
 	size_t readSize = BUFFER_SIZE;
 	size_t sizeOnFS = 0;
 	while (fileSize)
@@ -401,28 +394,26 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 			readSize = fileSize;
 
 		input.read(reinterpret_cast<char*>(part), readSize * sizeof(byte));
-		info = writeToFS(part, readSize);
+		state = writeToFS(part, readSize);
 
 		fileSize -= readSize;
 		sizeOnFS += readSize;
 
-		if (info.size < SectorInfo::AVAILABLE_SIZE())
+		if (state.info.size < SectorInfo::AVAILABLE_SIZE())
 		{
-			size_t bytesToWrite = fileSize > info.freeSpace() ? info.freeSpace() : fileSize;
+			size_t bytesToWrite = fileSize > state.info.freeSpace() ? state.info.freeSpace() : fileSize;
 			input.read(reinterpret_cast<char*>(part), bytesToWrite * sizeof(byte));
-			append(part, bytesToWrite, info);
+			append(part, bytesToWrite, state.info);
 			fileSize -= bytesToWrite;
 			sizeOnFS += bytesToWrite;
 		}
 
-		if (fileSize && info.nextFragment == SectorInfo::noNext)
-			setNextFragment(info);
-
-		std::cout << "Import " << info.nextFragment << std::endl;
+		if (fileSize && state.info.nextSector == SectorInfo::noNext)
+			setnextSector(state.info);
 	}
 
 	delete[] part;
-
+	toImport->setLastSectorID(state.lastSectorID);
 	toImport->setSize(sizeOnFS);
 	files.insert(pair.first, toImport);
 	totalSize += sizeOnFS;
@@ -439,38 +430,17 @@ void FileSystem::deleteAllSectors(size_t at)
 	file.seekg(at * SectorInfo::SECTOR_SIZE, std::ios::beg);
 
 	SectorInfo info;
-	info.nextFragment = INT_MAX;
+	info.nextSector = INT_MAX;
 
-	while (info.nextFragment != SectorInfo::noNext)
+	while (info.nextSector != SectorInfo::noNext)
 	{
 		info.deserialize(file);
-		std::cout << "adding to queue: " << info.nextFragment << std::endl;
-		if (info.nextFragment != SectorInfo::noNext)
+		if (info.nextSector != SectorInfo::noNext)
 		{
-			deletedSectors.enqueue(info.nextFragment);
-			file.seekg(info.nextFragment * SectorInfo::SECTOR_SIZE, std::ios::beg);
+			deletedSectors.enqueue(info.nextSector);
+			file.seekg(info.nextSector * SectorInfo::SECTOR_SIZE, std::ios::beg);
 		}
 	}
-}
-
-// to delete
-size_t FileSystem::getSize(size_t at)
-{
-	size_t size = 0;
-	file.seekg(at * SectorInfo::SECTOR_SIZE, std::ios::beg);
-
-	SectorInfo info;
-	info.nextFragment = INT_MAX;
-
-	while (info.nextFragment != SectorInfo::noNext)
-	{
-		info.deserialize(file);
-
-		size += info.size;
-		file.seekg(info.nextFragment * SectorInfo::SECTOR_SIZE, std::ios::beg);
-	}
-
-	return size;
 }
 
 ///
@@ -482,15 +452,18 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 	if (!toCopy)
 		throw InvalidFilePath("File not found.");
 
+	if (toCopy->data->isDirectory())
+		throw InvalidFileType("Expected a file, got a dir.");
+
 	stringPair pair = splitPathAndName(dest);
 	byte* courier = NULL;
 	allocate<byte>(courier, BUFFER_SIZE);
-	File* theCopy = new File(pair.second, getNextFragmentID());
+	File* theCopy = new File(pair.second, getNextSectorID());
 	theCopy->setSize(toCopy->data->getSize());
 
-	SectorInfo writer;
-	size_t tellgPos = toCopy->data->getFragmentID() * SectorInfo::SECTOR_SIZE;
+	size_t tellgPos = toCopy->data->getFirstSectorID() * SectorInfo::SECTOR_SIZE;
 	ReadState state;
+	WriteState writer;
 
 	do
 	{
@@ -500,12 +473,13 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 
 		writer = writeToFS(courier, state.filled);
 
-		if ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite)
-			setNextFragment(writer);
+		if ((state.info.nextSector != SectorInfo::noNext) || state.wouldOverwrite)
+			setnextSector(writer.info);
 
-	} while ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite);
+	} while ((state.info.nextSector != SectorInfo::noNext) || state.wouldOverwrite);
 
 	delete[] courier;
+	theCopy->setLastSectorID(writer.lastSectorID);
 	files.insert(pair.first, theCopy);
 }
 
@@ -519,7 +493,7 @@ void FileSystem::copyDirectory(const std::string& path, const std::string& dest)
 		throw InvalidFilePath("Directory not found.");
 
 	if (!toCopy->data->isDirectory())
-		throw InvalidFileOperation("File is not a directory.");
+		throw InvalidFileType("File is not a directory.");
 
 	stringPair pair = splitPathAndName(dest);
 	files.insert(pair.first, new Directory(pair.second));
@@ -555,7 +529,6 @@ void FileSystem::importDirectory(const std::string& path, const std::string& des
 	if (!isDirectory(path))
 		throw InvalidFilePath("File is not a directory!");
 
-	std::cout << "Importing " << path << std::endl;
 	stringPair pair = splitPathAndName(dest);
 	files.insert(pair.first, new Directory(pair.second));
 
@@ -582,13 +555,32 @@ void FileSystem::rename(const std::string& path, const std::string& newName)
 }
 
 ///
+/// Appends text to the end of a file
+///
+void FileSystem::appendText(const std::string& text, const std::string& dest)
+{
+	TNode* toBeAppended = files.getNode(dest);
+	if (!toBeAppended)
+		throw InvalidFilePath("File not found.");
+
+	if (toBeAppended->data->isDirectory())
+		throw InvalidFileType("Expected a file, got a folder.");
+
+	file.seekg(toBeAppended->data->getLastSectorID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
+	SectorInfo info;
+	info.deserialize(file);
+	file.seekp((toBeAppended->data->getLastSectorID() + 1)* SectorInfo::SECTOR_SIZE, std::ios::beg);
+	append(reinterpret_cast<const byte *>(text.c_str()), text.size(), info);
+}
+
+///
 /// This method is used to go back to the service information
-/// of the fragment, when the info.nextFragment is SectorInfo::noNext,
+/// of the fragment, when the info.nextSector is SectorInfo::noNext,
 /// so it can set it to show to real number, in order to continue read/write
 ///
-bool FileSystem::setNextFragment(SectorInfo& info)
+bool FileSystem::setnextSector(SectorInfo& info)
 {
-	info.nextFragment = getNextFragmentID();
+	info.nextSector = getNextSectorID();
 
 	file.seekp(-static_cast<int>(SectorInfo::SECTOR_SIZE), std::ios::cur);
 	info.serialize(file);

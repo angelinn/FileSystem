@@ -86,10 +86,18 @@ void Tree::insert(const std::string& path, File* file)
 	getNodeAt(path, root, node);
 
 	if (node)
+	{
 		if (node->data->isDirectory())
+		{
+			for (ListIterator iter = node->children.begin(); iter; ++iter)
+				if ((*iter)->data->getName() == file->getName())
+					throw InvalidFileOperation("File already exists!");
+
 			node->children.pushBack(new TNode(file, node));
+		}
 		else
 			throw InvalidFileOperation("Tried to put File* in a file!");
+	}
 }
 
 TNode* Tree::remove(const std::string& path)
@@ -122,7 +130,7 @@ TNode* Tree::remove(const std::string& path)
 
 void Tree::getNodeAt(const std::string& path, TNode*& currentNode, TNode*& result)
 {
-	if (currentNode->data == path)
+	if (currentNode->data->getName() == path)
 	{
 		result = currentNode;
 		return;
@@ -180,20 +188,4 @@ void Tree::deserializeRecursive(std::istream& stream, TNode*& node)
 
 	for (ListIterator iter = node->children.begin(); iter; ++iter)
 		deserializeRecursive(stream, *iter);
-}
-
-void Tree::DFS() const
-{
-	DFSR(root);
-}
-
-void Tree::DFSR(TNode* node) const
-{
-	std::cout << "Father: " << node->data->toString() << std::endl << node->children.getSize() << std::endl;
-	for (ListIterator iter = node->children.begin(); iter; ++iter)
-		std::cout << (*iter)->data->toString() << " ";
-
-	std::cout << "\n-----------------------------------------\n";
-	for (ListIterator iter = node->children.begin(); iter; ++iter)
-		DFSR(*iter);
 }

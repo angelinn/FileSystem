@@ -39,10 +39,10 @@
     <ClCompile Include="CommandParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sector.cpp">
+    <ClCompile Include="CLI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CLI.cpp">
+    <ClCompile Include="SectorInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,19 +86,19 @@
     <ClInclude Include="CommandParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CLI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileSystemWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ReaderWriter.h">
+    <ClInclude Include="ReadState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ReadState.h">
+    <ClInclude Include="WriteState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SectorInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

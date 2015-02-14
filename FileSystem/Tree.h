@@ -19,8 +19,6 @@ public:
 	TNode* getNode(const std::string &);
 
 public:
-	void DFS() const;
-	void DFSR(TNode *) const;
 	void serialize(std::ostream &) const;
 	void deserialize(std::istream &, size_t);
 	void moveTree(TNode *, TNode *);

@@ -2,7 +2,6 @@
 #include <iostream>
 #include "FileSystemException.h"
 
-/// TO DO
 
 CLI::CLI() : keepGoing(true)
 {
@@ -10,6 +9,9 @@ CLI::CLI() : keepGoing(true)
 	registerCommands();
 }
 
+///
+/// Registers the command that can be used
+///
 void CLI::registerCommands()
 {
 	parser.registerCommand("touch", &CLI::addEmptyFile);
@@ -30,6 +32,9 @@ void CLI::registerCommands()
 	parser.registerCommand("help", &CLI::help);
 }
 
+///
+/// Parses the input from std::cin to a DLList of strings
+///
 DLList<std::string> CLI::parseInput() const
 {
 	char buffer[_MAX_PATH];
@@ -76,15 +81,15 @@ void CLI::promptForFS()
 	std::cin >> response;
 
 	std::cout << FILE_NAME_REQUEST;
-	std::string fileName = FileSystem::FILE_NAME;
-	//std::cin >> fileName;
+	std::string fileName;
+	std::cin >> fileName;
 
 	std::cout << LOADING_MESSAGE << std::endl;
 
 	if (response == RESPONSE_NEW)
 		fileSystem.create(fileName, true);
 	else
-		fileSystem.create(fileName);
+		fileSystem.create(fileName, false);
 
 }
 
@@ -110,14 +115,13 @@ void CLI::standby()
 		catch (std::exception &e)
 		{
 			std::cerr << e.what() << std::endl;
-			//std::cerr << "Something wrong happened." << std::endl;
 		}
 	}
 }
 
 void CLI::help(DLList<std::string> &)
 {
-
+	std::cout << HELP_MESSAGE << std::endl;
 }
 
 void CLI::exit(DLList<std::string> &)
@@ -225,13 +229,17 @@ void CLI::rename(DLList<std::string>& commands)
 	secondBuffer = commands.popBack();
 	firstBuffer = commands.popBack();
 
-	fileSystem.rename(commands.popBack(), commands.popBack());
+	fileSystem.rename(firstBuffer, secondBuffer);
 	std::cout << firstBuffer << " is now " << secondBuffer << std::endl;
 }
 
 void CLI::appendText(DLList<std::string>& commands)
 {
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
 
+	fileSystem.appendText(firstBuffer, secondBuffer);
+	std::cout << "Appended " << firstBuffer << " to " << secondBuffer << std::endl;
 }
 
 void CLI::getFileInfo(DLList<std::string>& commands)

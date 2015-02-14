@@ -54,7 +54,7 @@
     <ClInclude Include="..\FileSystem\FileSystemException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\FileSystem\Sector.h">
+    <ClInclude Include="..\FileSystem\SectorInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -83,7 +83,7 @@
     <ClCompile Include="..\FileSystem\FileSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\FileSystem\Sector.cpp">
+    <ClCompile Include="..\FileSystem\SectorInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
