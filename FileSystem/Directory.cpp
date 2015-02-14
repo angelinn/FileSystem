@@ -16,5 +16,5 @@ Directory::Directory(const File* other) : File(*other)
 
 std::string Directory::toString() const
 {
-	return "<" + File::toString() + ">";
+	return "<" + name + ">";
 }

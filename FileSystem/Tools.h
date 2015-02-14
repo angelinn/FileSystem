@@ -30,6 +30,18 @@ const int BUFFER_SIZE = 64 * KILO_BYTE;
 const unsigned char NULL_BYTE = 0x00;
 
 // --------------------------------------------------------------------------------------------------------------
+// CLI Constants
+
+const char RESPONSE_NEW = 'n';
+const char SOUND_CHAR = '\a';
+const char* const PROMPT = "> ";
+const char* const LOADING_MESSAGE = "loading ..";
+const char* const HELP_MESSAGE = "h";
+const char* const FILE_NAME_REQUEST = "\nType in the name of the File\n> ";
+const char* const PROMPT_ON_CREATE = "If you want to create a new file system, type 'n'!\n"
+									 "Else if you want to create an existing one type 'e'!\n";
+
+// --------------------------------------------------------------------------------------------------------------
 
 template void allocate<unsigned char>(unsigned char *&, size_t);
 

@@ -29,6 +29,7 @@ private:
 	void appendText(DLList<std::string> &);
 	void getFileInfo(DLList<std::string> &);
 	void exit(DLList<std::string> &);
+	void help(DLList<std::string> &);
 
 private:
 	DLList<std::string> parseInput() const;
@@ -38,6 +39,8 @@ private:
 	bool keepGoing;
 	FileSystem fileSystem;
 	CommandParser parser;
+	std::string firstBuffer;
+	std::string secondBuffer;
 };
 
 

@@ -6,13 +6,13 @@
 class SectorInfo
 {
 public:
+	/// Indicates there is no next sector
 	static const int noNext = -1;
 	static const size_t SECTOR_SIZE = 4096;
 
 public:
-	// To do - sector only 4096 bytes including the offset
-	static size_t AVAILABLE_SIZE() { return SECTOR_SIZE - informationSize(); }
-	static size_t informationSize() { return sizeof(size_t) + sizeof(int); }
+	static size_t AVAILABLE_SIZE();
+	static size_t informationSize();
 
 public:
 	void deserialize(std::fstream &);
@@ -20,7 +20,7 @@ public:
 
 public:
 	bool isEmpty() const { return size == 0; }
-	size_t freeSpace() const { return AVAILABLE_SIZE() - size; }
+	size_t freeSpace() const;
 
 public:
 	int nextFragment;

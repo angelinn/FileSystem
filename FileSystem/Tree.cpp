@@ -158,7 +158,7 @@ void Tree::serializeRecursive(std::ostream& stream, TNode* node) const
 void Tree::deserialize(std::istream& stream, size_t at)
 {
 	stream.seekg(at, std::ios::beg);
-	root = new TNode();
+	root = new TNode(NULL);
 	deserializeRecursive(stream, root);
 }
 
@@ -168,7 +168,7 @@ void Tree::deserializeRecursive(std::istream& stream, TNode*& node)
 	stream.read(reinterpret_cast<char*>(&size), sizeof(int));
 
 	for (int i = 0; i < size; ++i)
-		node->children.pushBack(new TNode());
+		node->children.pushBack(new TNode(node));
 
 	bool isDir = false;
 	stream.read(reinterpret_cast<char*>(&isDir), sizeof(bool));

@@ -7,7 +7,7 @@
 class TNode
 {
 public:
-	TNode() : parent(NULL), data(NULL) {   }
+	TNode(TNode* par) : parent(par), data(NULL) {   }
 	TNode(File *, TNode *);
 	~TNode();
 

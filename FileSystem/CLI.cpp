@@ -6,7 +6,7 @@
 
 CLI::CLI() : keepGoing(true)
 {
-	std::cout << "loading .." << std::endl;
+	std::cout << LOADING_MESSAGE << std::endl;
 	registerCommands();
 }
 
@@ -27,6 +27,7 @@ void CLI::registerCommands()
 	parser.registerCommand("append", &CLI::appendText);
 	parser.registerCommand("dir", &CLI::getFileInfo);
 	parser.registerCommand("exit", &CLI::exit);
+	parser.registerCommand("help", &CLI::help);
 }
 
 DLList<std::string> CLI::parseInput() const
@@ -69,19 +70,18 @@ DLList<std::string> CLI::parseInput() const
 
 void CLI::promptForFS()
 {
-	std::cout << "If you want to create a new file system, type 'n'!\n"
-		<< "Else if you want to create an existing one type 'e'!\n";
+	std::cout << PROMPT_ON_CREATE;
 
 	char response = 0;
 	std::cin >> response;
 
-	std::cout << "\nType in the name of the File\n > ";
+	std::cout << FILE_NAME_REQUEST;
 	std::string fileName = FileSystem::FILE_NAME;
 	//std::cin >> fileName;
 
-	std::cout << "creating .." << std::endl;
+	std::cout << LOADING_MESSAGE << std::endl;
 
-	if (response == 'n')
+	if (response == RESPONSE_NEW)
 		fileSystem.create(fileName, true);
 	else
 		fileSystem.create(fileName);
@@ -94,7 +94,7 @@ void CLI::standby()
 
 	while (keepGoing)
 	{
-		std::cout << "> \a";
+		std::cout << PROMPT << SOUND_CHAR;
 		DLList<std::string>& commands = parseInput();
 		try
 		{
@@ -114,6 +114,11 @@ void CLI::standby()
 	}
 }
 
+void CLI::help(DLList<std::string> &)
+{
+
+}
+
 void CLI::exit(DLList<std::string> &)
 {
 	keepGoing = false;
@@ -121,63 +126,106 @@ void CLI::exit(DLList<std::string> &)
 
 void CLI::addEmptyFile(DLList<std::string>& commands)
 {
-	fileSystem.addEmptyFile(commands.popFront());
+	firstBuffer = commands.popBack();
+	fileSystem.addEmptyFile(firstBuffer);
+
+	std::cout << "Empty file " << firstBuffer << " added." << std::endl;
 }
 
 void CLI::addDirectory(DLList<std::string>& commands)
 {
-	fileSystem.addDirectory(commands.popFront());
-	std::cout << "Created dir " << std::endl;
+	firstBuffer = commands.popBack();
+	fileSystem.addDirectory(firstBuffer);
+
+	std::cout << "Created directory " << firstBuffer << std::endl;
 }
 
 void CLI::importFile(DLList<std::string>& commands)
 {
-	fileSystem.importFile(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.importFile(firstBuffer, secondBuffer);
+	std::cout << "Imported " << firstBuffer << " into " << secondBuffer << std::endl;
 }
 
 void CLI::importDirectory(DLList<std::string>& commands)
 {
-	fileSystem.importDirectory(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.importDirectory(firstBuffer, secondBuffer);
+	std::cout << "Imported " << firstBuffer << " into " << secondBuffer << std::endl;
 }
 
 void CLI::exportFile(DLList<std::string>& commands)
 {
-	fileSystem.exportFile(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.exportFile(firstBuffer, secondBuffer);
+	std::cout << "Exported " << firstBuffer << " into " << secondBuffer << std::endl;
 }
 
 void CLI::exportDirectory(DLList<std::string>& commands)
 {
-	fileSystem.exportDirectory(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.exportDirectory(firstBuffer, secondBuffer);
+	std::cout << "Exported " << firstBuffer << " into " << secondBuffer << std::endl;
 }
 
 void CLI::deleteFile(DLList<std::string>& commands)
 {
-	fileSystem.deleteFile(commands.popBack());
+	firstBuffer = commands.popBack();
+	fileSystem.deleteFile(firstBuffer);
+
+	std::cout << firstBuffer << " deleted successfully." << std::endl;
 }
 
 void CLI::deleteDirectory(DLList<std::string>& commands)
 {
-	fileSystem.deleteDirectory(commands.popBack());
+	firstBuffer = commands.popBack();
+	fileSystem.deleteDirectory(firstBuffer);
+
+	std::cout << firstBuffer << " deleted successfully." << std::endl;
 }
 
 void CLI::moveFile(DLList<std::string>& commands)
 {
-	fileSystem.moveFile(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.moveFile(firstBuffer, secondBuffer);
+	std::cout << "Moved " << firstBuffer << " to " << secondBuffer << std::endl;
 }
 
 void CLI::copyFile(DLList<std::string>& commands)
 {
-	fileSystem.copyFile(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.copyFile(firstBuffer, secondBuffer);
+	std::cout << "Copied " << firstBuffer << " to " << secondBuffer << std::endl;
 }
 
 void CLI::copyDirectory(DLList<std::string>& commands)
 {
-	fileSystem.copyDirectory(commands.popBack(), commands.popBack());
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
+	fileSystem.copyDirectory(firstBuffer, secondBuffer);
+	std::cout << "Copied " << firstBuffer << " to " << secondBuffer << std::endl;
 }
 
 void CLI::rename(DLList<std::string>& commands)
 {
+	secondBuffer = commands.popBack();
+	firstBuffer = commands.popBack();
+
 	fileSystem.rename(commands.popBack(), commands.popBack());
+	std::cout << firstBuffer << " is now " << secondBuffer << std::endl;
 }
 
 void CLI::appendText(DLList<std::string>& commands)

@@ -9,16 +9,25 @@
 typedef unsigned char byte;
 const char* FileSystem::FILE_NAME = "myFileSystem.bin";
 
-
+///
+/// Sets default values for core variables
+///
 FileSystem::FileSystem() : treeAt(-1), lastFragmentID(-1), totalSize(0)
 {  }
 
+///
+/// Upon destroying the object, all the information is serialized
+/// If the destructor is not called, the data will be lost
+///
 FileSystem::~FileSystem()
 {
 	writeCoreData();
 	file.close();
 }
 
+///
+/// Serializes the needed data to boot up the system
+///
 void FileSystem::writeCoreData()
 {
 	file.seekp(0, std::ios::end);
@@ -30,6 +39,10 @@ void FileSystem::writeCoreData()
 	file.write(reinterpret_cast<const char*>(&lastFragmentID), sizeof(int));
 	file.write(reinterpret_cast<const char*>(&totalSize), sizeof(size_t));
 }
+
+///
+/// Deserializes the needed data to boot up the system
+///
 
 void FileSystem::readCoreData()
 {
@@ -46,6 +59,9 @@ void FileSystem::readCoreData()
 	deletedSectors.deserializeBuiltInType(file);
 }
 
+///
+/// Creates or boots already existing file system
+///
 void FileSystem::create(const std::string& path, bool newFS)
 {
 	if (newFS)
@@ -66,6 +82,9 @@ void FileSystem::create(const std::string& path, bool newFS)
 	}
 }
 
+///
+/// Writes a byte array to the file system
+///
 SectorInfo FileSystem::writeToFS(const byte* content, size_t size)
 {
 	SectorInfo info;
@@ -86,6 +105,9 @@ SectorInfo FileSystem::writeToFS(const byte* content, size_t size)
 	return info;
 }
 
+///
+/// ??
+/// 
 void FileSystem::append(byte*& content, size_t size, SectorInfo& info)
 {
 	file.seekp(-static_cast<int>(SectorInfo::AVAILABLE_SIZE() - info.size), std::ios::cur);
@@ -104,6 +126,9 @@ void FileSystem::append(byte*& content, size_t size, SectorInfo& info)
 	file.seekp(SectorInfo::SECTOR_SIZE - SectorInfo::informationSize(), std::ios::cur);
 }
 
+///
+/// Writes a byte array into a single sector of the file system
+/// 
 bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
 {
 
@@ -141,11 +166,17 @@ bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
 	}
 }
 
+///
+/// Returns the next free fragment ID
+/// 
 inline int FileSystem::getNextFragmentID() const
 {
 	return deletedSectors.isEmpty() ? lastFragmentID + 1 : deletedSectors.peek();
 }
 
+///
+/// Sets the next fragment ID
+///
 void FileSystem::moveToNextFragmentID()
 {
 	if (deletedSectors.isEmpty())
@@ -154,6 +185,9 @@ void FileSystem::moveToNextFragmentID()
 		deletedSectors.dequeue();
 }
 
+///
+/// Adds a file with size of zero to the file system
+///
 void FileSystem::addEmptyFile(const std::string& file)
 {
 	stringPair pair = splitPathAndName(file);
@@ -166,12 +200,18 @@ void FileSystem::addEmptyFile(const std::string& file)
 	this->file.flush();
 }
 
+///
+/// Adds a dir to the file system
+/// 
 void FileSystem::addDirectory(const std::string& dir)
 {
 	stringPair pair = splitPathAndName(dir);
 	files.insert(pair.first, new Directory(pair.second));
 }
 
+///
+/// Moves a file or a directory from one node to another
+/// 
 void FileSystem::moveFile(const std::string& path, const std::string& dest)
 {
 	TNode* toMove = files.remove(path);
@@ -182,6 +222,9 @@ void FileSystem::moveFile(const std::string& path, const std::string& dest)
 	files.moveTree(files.getNode(pair.first), toMove);
 }
 
+///
+/// Exports a file from the system to the OS' file system
+///
 // rebuild
 void FileSystem::exportFile(const std::string& path, const std::string& dest)
 {
@@ -204,7 +247,7 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 	do
 	{
 		state = readFromFS(placeholder, BUFFER_SIZE);
-		std::cout << state.info.nextFragment << std::endl;
+		//std::cout << state.info.nextFragment << std::endl;
 		output.write(reinterpret_cast<const char*>(placeholder), state.filled * sizeof(byte));
 	} while ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite);
 
@@ -212,6 +255,9 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 	delete[] placeholder;
 }
 
+///
+/// Exports a dir to the OS' file system
+/// 
 void FileSystem::exportDirectory(const std::string& path, const std::string& dest)
 {
 	TNode* dirNode = files.getNode(path);
@@ -233,6 +279,11 @@ void FileSystem::exportDirectory(const std::string& path, const std::string& des
 
 }
 
+///
+/// Reads maxSize bytes from the fileSystem.
+/// seekg() must already have been set to the correct position.
+/// Returns a ReadState object.
+///
 ReadState FileSystem::readFromFS(byte* content, size_t maxSize)
 {
 	ReadState state;
@@ -265,19 +316,27 @@ ReadState FileSystem::readFromFS(byte* content, size_t maxSize)
 	return state;
 }
 
-// rebuild - ? needs testing
+///
+/// Deletes a file from the tree.
+/// Puts all its sectors to the deletedSectors queue.
+///
 void FileSystem::deleteFile(const std::string& path)
 {
 	TNode* toDelete = files.getNode(path);
 	if (!toDelete)
 		throw InvalidFilePath("File not found!");
 
+	if (toDelete->data->isDirectory())
+		throw InvalidFileOperation("File is a directory. (file expected)");
 	deleteAllSectors(toDelete->data->getFragmentID());
 	totalSize -= toDelete->data->getSize();
 
 	delete files.remove(path);
 }
 
+///
+/// Deletes a directory from the file system
+///
 void FileSystem::deleteDirectory(const std::string& path)
 {
 	TNode* toDelete = files.getNode(path);
@@ -309,7 +368,9 @@ void FileSystem::deleteDirectory(const std::string& path)
 	delete files.remove(path);
 }
 
-// append still needs a little testing
+///
+/// Imports a file from the real FS to this one
+///
 void FileSystem::importFile(const std::string& path, const std::string& dest)
 {
 	std::ifstream input(path, std::ios::in | std::ios::binary);
@@ -373,6 +434,10 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 	input.close();
 }
 
+///
+/// Deletes all the sectors of the file that
+/// starts at the 'at' position
+///
 void FileSystem::deleteAllSectors(size_t at)
 {
 	deletedSectors.enqueue(at);
@@ -384,6 +449,7 @@ void FileSystem::deleteAllSectors(size_t at)
 	while (info.nextFragment != SectorInfo::noNext)
 	{
 		info.deserialize(file);
+		std::cout << "adding to queue: " << info.nextFragment << std::endl;
 		if (info.nextFragment != SectorInfo::noNext)
 		{
 			deletedSectors.enqueue(info.nextFragment);
@@ -392,6 +458,7 @@ void FileSystem::deleteAllSectors(size_t at)
 	}
 }
 
+// to delete
 size_t FileSystem::getSize(size_t at)
 {
 	size_t size = 0;
@@ -411,6 +478,9 @@ size_t FileSystem::getSize(size_t at)
 	return size;
 }
 
+///
+/// Copies a file from this FS back to it
+/// 
 void FileSystem::copyFile(const std::string& path, const std::string& dest)
 {
 	TNode* toCopy = files.getNode(path);
@@ -443,6 +513,9 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 	files.insert(pair.first, theCopy);
 }
 
+///
+/// Copies a directory from this FS back to it
+///
 void FileSystem::copyDirectory(const std::string& path, const std::string& dest)
 {
 	TNode* toCopy = files.getNode(path);
@@ -478,6 +551,9 @@ bool FileSystem::isDirectory(const std::string& path) const
 	return (buffer.st_mode & S_IFMT) == S_IFDIR;
 }
 
+///
+/// Imports directory from the real FS to this one
+///
 void FileSystem::importDirectory(const std::string& path, const std::string& dest)
 {
 	if (!isDirectory(path))
@@ -497,6 +573,9 @@ void FileSystem::importDirectory(const std::string& path, const std::string& des
 	}
 }
 
+///
+/// Renames a File in the current FS
+///
 void FileSystem::rename(const std::string& path, const std::string& newName)
 {
 	TNode* toRename = files.getNode(path);
@@ -506,6 +585,11 @@ void FileSystem::rename(const std::string& path, const std::string& newName)
 	toRename->data->setName(newName);
 }
 
+///
+/// This method is used to go back to the service information
+/// of the fragment, when the info.nextFragment is SectorInfo::noNext,
+/// so it can set it to show to real number, in order to continue read/write
+///
 bool FileSystem::setNextFragment(SectorInfo& info)
 {
 	info.nextFragment = getNextFragmentID();
@@ -516,6 +600,9 @@ bool FileSystem::setNextFragment(SectorInfo& info)
 	return true;
 }
 
+///
+/// Gets the information for a file
+///
 std::string FileSystem::getFileInfo(const std::string& path)
 {
 	TNode* file = files.getNode(path);
@@ -525,6 +612,10 @@ std::string FileSystem::getFileInfo(const std::string& path)
 	return file->toString();
 }
 
+///
+/// Gets the names of all the files in the first level 
+/// in a directory. Returns a DLList of std::string
+///
 DLList<std::string> FileSystem::getFilesFromADirectory(const std::string& path) const
 {
 	DLList<std::string> fileNames;
@@ -541,6 +632,10 @@ DLList<std::string> FileSystem::getFilesFromADirectory(const std::string& path) 
 	return fileNames;
 }
 
+///
+/// Splits a path into the path a file to be inserted into
+/// and the name of the file. Returns a pair of std::string
+///
 stringPair FileSystem::splitPathAndName(const std::string& path) const
 {
 	size_t backslash = path.rfind(BACKSLASH_CHAR);
