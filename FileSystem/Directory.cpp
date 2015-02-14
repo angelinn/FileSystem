@@ -11,7 +11,7 @@ Directory::Directory(const std::string& n) : File(n)
 }
 
 // Not pretty
-Directory::Directory(const File* other) : File(*other)
+Directory::Directory(const File* other) : File(other)
 {  }
 
 std::string Directory::toString() const

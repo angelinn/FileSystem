@@ -7,6 +7,9 @@ File::File() : startFragmentID(0), isDir(false), size(0)
 File::File(std::string n, int fragmentID) : name(n), startFragmentID(fragmentID), isDir(false), size(0)
 {  }
 
+File::File(const File* other) : File(*other)
+{  }
+
 size_t File::getFileSize(std::istream& file)
 {
 	file.seekg(0, std::ios::end);

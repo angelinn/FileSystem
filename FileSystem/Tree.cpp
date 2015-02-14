@@ -42,13 +42,14 @@ void Tree::moveTree(TNode* source, TNode* dest)
 	source->children.pushBack(dest);
 }
 
-// Not Tested yet
 void Tree::copyTree(const TNode* source, TNode*& destination)
 {
 	if (!source)
 		return;
 
-	destination->data = new File(*source->data);
+	destination->data = source->data->isDirectory() ? new Directory(source->data) 
+												    : new File(source->data);
+
 	TNode* child = NULL;
 
 	for (ListIterator iter = source->children.begin(); iter; ++iter)

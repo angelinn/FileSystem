@@ -491,6 +491,7 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 	byte* courier = NULL;
 	allocate<byte>(courier, BUFFER_SIZE);
 	File* theCopy = new File(pair.second, getNextFragmentID());
+	theCopy->setSize(toCopy->data->getSize());
 
 	SectorInfo writer;
 	size_t tellgPos = toCopy->data->getFragmentID() * SectorInfo::SECTOR_SIZE;
@@ -503,8 +504,14 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 		tellgPos = file.tellg();
 
 		writer = writeToFS(courier, state.filled);
+		//if (writer.size < SectorInfo::AVAILABLE_SIZE())
+		//{
+		//	size_t bytesToWrite = fileSize > info.freeSpace() ? info.freeSpace() : fileSize;
+		//	input.read(reinterpret_cast<char*>(part), bytesToWrite * sizeof(byte));
+		//	append(part, bytesToWrite, info);
+		//}
 
-		if (state.info.nextFragment != SectorInfo::noNext)
+		if ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite)
 			setNextFragment(writer);
 
 	} while ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite);

@@ -9,6 +9,7 @@ class File
 public:
 	File();
 	File(std::string, int = SectorInfo::noNext);
+	File(const File *);
 
 public:
 	static size_t getFileSize(std::istream &);
