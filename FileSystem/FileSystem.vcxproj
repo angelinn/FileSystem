@@ -97,6 +97,7 @@
     <ClInclude Include="FileSystem.h" />
     <ClInclude Include="FileSystemException.h" />
     <ClInclude Include="ReaderWriter.h" />
+    <ClInclude Include="ReadState.h" />
     <ClInclude Include="Sector.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Queue.h" />

@@ -7,6 +7,8 @@
 #include "Queue.h"
 #include <fstream>
 
+struct ReadState;
+
 class FileSystem
 {
 	typedef unsigned char byte;
@@ -38,7 +40,7 @@ public:
 	std::string getFileInfo(const std::string &);
 
 private:
-	size_t readFromFS(byte *, size_t, SectorInfo &);
+	ReadState readFromFS(byte *, size_t);
 	stringPair splitPathAndName(const std::string &) const;
 	DLList<std::string> getFilesFromADirectory(const std::string &) const;
 

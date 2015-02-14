@@ -10,16 +10,6 @@ CLI::CLI() : keepGoing(true)
 	registerCommands();
 }
 
-void CLI::createFS()
-{
-
-}
-
-void CLI::loadFS(const std::string& path)
-{
-	fileSystem.create(path, false);
-}
-
 void CLI::registerCommands()
 {
 	parser.registerCommand("touch", &CLI::addEmptyFile);
@@ -77,9 +67,29 @@ DLList<std::string> CLI::parseInput() const
 	return result;
 }
 
+void CLI::promptForFS()
+{
+	std::cout << "If you want to create a new file system, type 'n'!\n"
+		<< "Else if you want to create an existing one type 'e'!\n";
+
+	char response = 0;
+	std::cin >> response;
+
+	std::cout << "\nType in the name of the File\n > ";
+	std::string fileName = FileSystem::FILE_NAME;
+	//std::cin >> fileName;
+
+	std::cout << "creating .." << std::endl;
+
+	if (response == 'n')
+		fileSystem.create(fileName, true);
+	else
+		fileSystem.create(fileName);
+
+}
+
 void CLI::standby()
 {
-	loadFS(FileSystem::FILE_NAME);
 	FileAction action = NULL;
 
 	while (keepGoing)

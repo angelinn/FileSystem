@@ -10,8 +10,7 @@ public:
 	CLI();
 
 public:
-	void createFS();
-	void loadFS(const std::string &);
+	void promptForFS();
 	void standby();
 
 private:

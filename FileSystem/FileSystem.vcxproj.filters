@@ -98,5 +98,8 @@
     <ClInclude Include="ReaderWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ReadState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

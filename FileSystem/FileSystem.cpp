@@ -1,9 +1,9 @@
 #include "FileSystem.h"
-#include "Sector.h"
 #include "FileSystemException.h"
 #include <sys/stat.h>
 #include <direct.h>
 #include "dirent/dirent.h"
+#include "ReadState.h"
 #include <iostream>
 
 typedef unsigned char byte;
@@ -72,7 +72,7 @@ SectorInfo FileSystem::writeToFS(const byte* content, size_t size)
 	size_t pos;
 
 	if (deletedSectors.isEmpty())
-		file.seekp(0, std::ios::end);
+		file.seekp(getNextFragmentID() * SectorInfo::SECTOR_SIZE, std::ios::beg);
 	else
 		file.seekp(deletedSectors.peek() * SectorInfo::SECTOR_SIZE, std::ios::beg);
 
@@ -92,11 +92,16 @@ void FileSystem::append(byte*& content, size_t size, SectorInfo& info)
 	file.write(reinterpret_cast<const char*>(content), size * sizeof(byte));
 
 	info.size += size;
+
 	if (info.size != SectorInfo::AVAILABLE_SIZE())
 	{
 		file.seekp(info.freeSpace() - 1, std::ios::cur);
 		file.write(reinterpret_cast<const char*>(&NULL_BYTE), sizeof(byte));
 	}
+	file.seekp(-static_cast<int>(SectorInfo::SECTOR_SIZE), std::ios::cur);
+
+	info.serialize(file);
+	file.seekp(SectorInfo::SECTOR_SIZE - SectorInfo::informationSize(), std::ios::cur);
 }
 
 bool FileSystem::writeCore(const byte*& content, size_t& size, SectorInfo& info)
@@ -193,15 +198,15 @@ void FileSystem::exportFile(const std::string& path, const std::string& dest)
 
 	byte* placeholder = NULL;
 	allocate<byte>(placeholder, BUFFER_SIZE);
+	size_t thingy = file.tellg();
+	ReadState state;
 
-	SectorInfo info;
-	size_t filled = 0;
 	do
 	{
-		filled = readFromFS(placeholder, BUFFER_SIZE, info);
-		//std::cout << info.nextFragment << std::endl;
-		output.write(reinterpret_cast<const char*>(placeholder), filled * sizeof(byte));
-	} while (info.nextFragment != SectorInfo::noNext);
+		state = readFromFS(placeholder, BUFFER_SIZE);
+		std::cout << state.info.nextFragment << std::endl;
+		output.write(reinterpret_cast<const char*>(placeholder), state.filled * sizeof(byte));
+	} while ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite);
 
 	output.close();
 	delete[] placeholder;
@@ -228,33 +233,36 @@ void FileSystem::exportDirectory(const std::string& path, const std::string& des
 
 }
 
-size_t FileSystem::readFromFS(byte* content, size_t maxSize, SectorInfo& info)
+ReadState FileSystem::readFromFS(byte* content, size_t maxSize)
 {
-	int filled = 0;
+	ReadState state;
+	state.filled = 0;
 
 	do
 	{
-		if (filled >= BUFFER_SIZE)
-			if (filled == BUFFER_SIZE)
+		if (state.filled >= BUFFER_SIZE)
+			if (state.filled == BUFFER_SIZE)
 				break;
 			else
 				throw InvalidFileOperation("filled > BUFFER_SIZE instead of equal!");
 
-		info.deserialize(file);
-		if ((filled + info.size) > BUFFER_SIZE)
+		state.info.deserialize(file);
+		if ((state.filled + state.info.size) > BUFFER_SIZE)
 		{
 			file.seekg(-8, std::ios::cur);
-			return filled;
+			state.wouldOverwrite = true;
+			return state;
 		}
 
-		file.read(reinterpret_cast<char*>(content), sizeof(byte) * info.size);
-		filled += info.size;
-		content += info.size;
-		file.seekg(info.nextFragment * SectorInfo::SECTOR_SIZE, std::ios::beg);
-	} while (info.nextFragment != SectorInfo::noNext);
+		file.read(reinterpret_cast<char*>(content), sizeof(byte) * state.info.size);
+		state.filled += state.info.size;
+		content += state.info.size;
+		file.seekg(state.info.nextFragment * SectorInfo::SECTOR_SIZE, std::ios::beg);
+	} while (state.info.nextFragment != SectorInfo::noNext);
 
-	content -= info.size;
-	return filled;
+	content -= state.info.size;
+	state.wouldOverwrite = false;
+	return state;
 }
 
 // rebuild - ? needs testing
@@ -337,6 +345,7 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 
 		input.read(reinterpret_cast<char*>(part), readSize * sizeof(byte));
 		info = writeToFS(part, readSize);
+
 		fileSize -= readSize;
 		sizeOnFS += readSize;
 
@@ -349,8 +358,11 @@ void FileSystem::importFile(const std::string& path, const std::string& dest)
 			sizeOnFS += bytesToWrite;
 		}
 
+		//std::cout << fileSize << std::endl;
 		if (fileSize && info.nextFragment == SectorInfo::noNext)
 			setNextFragment(info);
+
+		std::cout << "Import " << info.nextFragment << std::endl;
 	}
 
 	delete[] part;
@@ -410,22 +422,22 @@ void FileSystem::copyFile(const std::string& path, const std::string& dest)
 	allocate<byte>(courier, BUFFER_SIZE);
 	File* theCopy = new File(pair.second, getNextFragmentID());
 
-	SectorInfo reader, writer;
-	size_t filled = 0;
+	SectorInfo writer;
 	size_t tellgPos = toCopy->data->getFragmentID() * SectorInfo::SECTOR_SIZE;
+	ReadState state;
 
 	do
 	{
 		file.seekg(tellgPos, std::ios::beg);
-		filled = readFromFS(courier, BUFFER_SIZE, reader);
+		state = readFromFS(courier, BUFFER_SIZE);
 		tellgPos = file.tellg();
 
-		writer = writeToFS(courier, filled);
+		writer = writeToFS(courier, state.filled);
 
-		if (reader.nextFragment != SectorInfo::noNext)
+		if (state.info.nextFragment != SectorInfo::noNext)
 			setNextFragment(writer);
 
-	} while (reader.nextFragment != SectorInfo::noNext);
+	} while ((state.info.nextFragment != SectorInfo::noNext) || state.wouldOverwrite);
 
 	delete[] courier;
 	files.insert(pair.first, theCopy);
@@ -470,7 +482,7 @@ void FileSystem::importDirectory(const std::string& path, const std::string& des
 {
 	if (!isDirectory(path))
 		throw InvalidFilePath("File is not a directory!");
-	
+
 	std::cout << "Importing " << path << std::endl;
 	stringPair pair = splitPathAndName(dest);
 	files.insert(pair.first, new Directory(pair.second));
