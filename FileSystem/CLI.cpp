@@ -101,6 +101,7 @@ void CLI::standby()
 			action = parser.getMethod(commands.popFront());
 			if (action)
 				(this->*action)(commands);
+
 		}
 		catch (InvalidFilePath& e)
 		{

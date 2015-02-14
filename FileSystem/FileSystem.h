@@ -14,8 +14,6 @@ class FileSystem
 	typedef unsigned char byte;
 
 public:
-	void printTree() const;
-
 	FileSystem();
 	~FileSystem();
 	static const char* FILE_NAME;
@@ -46,7 +44,7 @@ private:
 
 	SectorInfo writeToFS(const byte *, size_t);
 	bool writeCore(const byte *&, size_t &, SectorInfo &);
-	void append(byte *&, size_t, SectorInfo &);
+	void append(byte *, size_t, SectorInfo &);
 
 	int getNextFragmentID() const;
 	void moveToNextFragmentID();
@@ -57,7 +55,6 @@ private:
 
 public:
 	TNode* getFile(const std::string& str) { return files.getNode(str); }
-	void flush() { file.flush(); }
 	size_t getTotalSize() const { return totalSize; }
 	size_t getSize(size_t);
 	void deleteAllSectors(size_t);
@@ -67,9 +64,7 @@ private:
 	int lastFragmentID;
 	std::fstream file;
 
-	void goToLastSector(int);
 private:
-	// TO DO : Serialize Queue
 	Queue<int> deletedSectors;
 	Tree files;
 	size_t totalSize;

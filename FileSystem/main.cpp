@@ -8,21 +8,19 @@ int main()
 {
 	try
 	{
-		CLI cli;
-		cli.promptForFS();
-		cli.standby();
+		//CLI cli;
+		//cli.promptForFS();
+		//cli.standby();
 
-		//FileSystem fs;
-		//fs.create(FileSystem::FILE_NAME, true);
+		FileSystem fs;
+		fs.create(FileSystem::FILE_NAME, true);
 
-		//fs.addDirectory("/fifa");
-		//fs.exportFile("/fifa/iso", "C:\\users\\angelin\\desktop\\rld_exported.iso");
-
-		//fs.addDirectory("/empty");
-		//fs.importDirectory("C:\\Users\\Angelin\\Desktop\\doxygen-1.8.9.1.src", "/doxygen");
-		//fs.addDirectory("/fifa");
-		//fs.addDirectory("/fifa/nested");
-		//fs.moveFile("/doxygen", "/fifa/nested");
+		fs.importFile("C:\\Users\\Angelin\\Desktop\\doxygen-1.8.9.1.src.tar.gz", "/doxygen");
+		fs.importDirectory("C:\\Users\\Angelin\\Desktop\\hello", "/hello");
+		fs.exportDirectory("/hello", "C:\\Users\\Angelin\\Desktop\\dafaq");
+		fs.deleteFile("/doxygen");
+		fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/rar");
+		fs.exportFile("/rar", "C:\\users\\angelin\\desktop\\DEL_TEST_RAR.rar");
 		//fs.deleteDirectory("/fifa/nested");
 		//fs.importFile("C:\\users\\angelin\\desktop\\hello.rar", "/empty/rar_three");
 		//fs.importFile("C:\\users\\angelin\\desktop\\WinMerge-2.14.0-exe.zip", "/empty/winmerge");

@@ -6,6 +6,10 @@
 class SectorInfo
 {
 public:
+	SectorInfo() : nextFragment(-2), size(-1) 
+	{  }
+
+public:
 	/// Indicates there is no next sector
 	static const int noNext = -1;
 	static const size_t SECTOR_SIZE = 4096;
